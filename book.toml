@@ -1,0 +1,7 @@
+[book]
+title = "Advent of Mojo"
+authors = ["Erica Sadun"]
+language = "en"
+
+[output.html]
+additional-css = ["theme/advent.css"]
