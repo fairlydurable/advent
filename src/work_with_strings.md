@@ -1,19 +1,29 @@
 # Work with strings 🔥
 
-Advent input is text, and before you can compute anything you take it apart.
-This page works one messy reading line every way a puzzle will ask: measure
-it, slice it, search it, reshape it.
+Advent of Code inputs arrive as text, but the answers are hiding inside:
+numbers, labels, separators, commands, coordinates, and clues.
 
-Across over a decade of puzzles, Advent of Code inputs have remained plain
-ASCII. You shouldn't need to work with Unicode codepoints or grapheme
-clusters. Reach for your base type: `String` and access it by ASCII bytes.
+Before you can solve the puzzle, you have to take the input apart.
 
-Each string is mutable, owns its data, and provides rich manipulation APIs.
+This page gives you one deliberately messy line and walks through the string
+operations you'll reach for again and again: trim it, search it, slice it,
+split it, and reshape it.
+
+## Relax, it's ASCII
+
+Advent of Code inputs are plain ASCII. That means one byte per character,
+simple indexing, and no grapheme-cluster surprises.
+
+For puzzle input, reach for `String` and work by byte. It's fast, direct,
+and a good fit for extracting fields, checking markers, and splitting lines
+into useful pieces.
 
 ## Build a string
 
-Create `string_tour.mojo`, add this code, and run it. The spaces around
-the main text are intentional:
+Today's input starts with one weather report. Create `string_tour.mojo`,
+add this code, and run it.
+
+The spaces around the main text are intentional:
 
 ```mojo
 def main():
@@ -22,26 +32,41 @@ def main():
     # single quotes make surrounding whitespace easy to spot
 ```
 
+Each string is mutable, owns its data, and provides rich manipulation APIs.
+
 ### Checkpoint
 
 Strings are Mojo's primary text type. They store UTF-8 encoded text and
 provide a safe, ergonomic interface for string manipulation.
 
-## String length
+## Measure the input
 
-Use `byte_length()` to measure ASCII string length. Add:
+Before you start cutting up the line, count your characters. You can use a
+pre-computed length for any work that involves the end of the string, like
+reversing and suffixes.
+
+For ASCII input only, `byte_length()` gives you a string length:
 
 ```mojo
 var length = string.byte_length()
-print(t"{string} length: {length}") # 31
+```
+
+`TStrings` (prefixed with the letter `t`) let you interpolate values
+into a string template and print them:
+
+```mojo
+print(t"{string} length: {length}")  # 31
 ```
 
 ### Checkpoint
 
-`TStrings` are templates, not strings. `print()` accepts them directly,
-but you must cast them to `String` for most other uses.
+- `TStrings` are templates, not strings.
+- `print()` accepts them directly.
+- Convert a `TString` to `String` when you need to store or manipulate
+  the resulting text as a string, or return a string from a function or
+  method.
 
-Try this with and without the cast:
+Try this code with and without the cast:
 
 ```mojo
 # TString construction with interpolation
@@ -52,57 +77,66 @@ print(math) # Correct: 5 plus 5 is 10
 
 ## String iteration
 
-To work character-by-character, iterate over codepoint_slices(). Each
-slice is a view into the original string and references a single Unicode
-codepoint. With ASCII, codepoints and characters are equivalent, so each
-slice behaves as a single character.
+Sometimes a puzzle makes you inspect input one character at a time: looking
+for markers, counting symbols, or building values as you go.
 
-This example uses a Mojo _list comprehension_ in square brackets to return
-a list of single-quoted characters. Add:
+Iterate over `codepoint_slices()` to walk through the text. Each slice is a
+view into the original string that references one Unicode codepoint. With
+ASCII input, each codepoint is one character.
+
+This example uses a Mojo list comprehension to collect the individual
+characters and convert each slice to a single-quoted string:
 
 ```mojo
-print([slice for slice in string.codepoint_slices()])
-# [ ,  , D, a, y,  , 1, :,  , 2, 0, ., 5, C, ,,  , P, a,
-#  r, t, l, y,  , C, l, o, u, d, y,  ,  ]
+print([String(t"'{slice}'") for slice in string.codepoint_slices()])
+# [' ', ' ', 'D', 'a', 'y', ' ', '1', ':', ' ', '2', '0', '.', '5',
+#  'C', ',', ' ', 'P', 'a', 'r', 't', 'l', 'y', ' ', 'C', 'l', 'o',
+#  'u', 'd', 'y', ' ', ' ']
 ```
 
 ### Checkpoint
 
-- Mojo list comprehensions work just like Python, collecting loop
-  results into a list.
-- When working with C-like language interop, string bytes to map to `char*`.
+- String iteration walks your input character-by-character. This lets you
+  locate markers and symbols in your puzzles, plus build values.
+- This example happens to use a Mojo list comprehension. They work just
+  like Python, collecting loop results into lists.
+- When working with C-like language interop, string bytes map to `char*`.
   To extract byte data, use `unsafe_ptr()` (a pointer to the underlying
   memory), not `bytes()` (an iterator).
 - Call `string.as_c_string_slice()` to return a null-terminated string.
   No change if the string is already null-terminated.
 
-You can initialize lists directly from iterators, but this has limited
-real world use:
-
-```mojo
-var list = List(string.codepoint_slices())
-print(list)
-# [ ,  , D, a, y,  , 1, :,  , 2, 0, ., 5, C, ,,  , P, a,
-#  r, t, l, y,  , C, l, o, u, d, y,  ,  ]
-```
-
 ## Join slices from lists
 
-Use `join()` to put strings together. You call the method on a separator
-string.
+Taking input apart is only half the job. Sometimes you keep the pieces you
+want and need to put them back together.
 
-Add this at the end of `main()`:
+Use `join()` to combine values into a string. Call the method on the
+separator you want to place between them.
+
+To rebuild the original line, use an empty separator:
 
 ```mojo
 var joined = "".join([slice for slice in string.codepoint_slices()])
-print(t"'{joined}')  # '  Day 1: 20.5C, Partly Cloudy  ' 
+print(t"'{joined}'")  # '  Day 1: 20.5C, Partly Cloudy  '
+```
+
+To rebuild the original line without spaces, filter them out:
+
+```mojo
+joined = "".join([
+    slice for slice in string.codepoint_slices()
+    if " " not in slice])
+print(t"'{joined}'")  #  'Day1:20.5C,PartlyCloudy'
 ```
 
 ### Checkpoint
 
 - `join()` supports any list of `Writable` values.
-- To concatenate, use an empty separator: `"".join(parts)`.
-- If you use commas, they only appear between elements:
+- Use an empty separator to concatenate values: `"".join(parts)`.
+- A non-empty separator appears only between elements.
+
+For example:
 
 ```mojo
 var hello: String = "Hello"
@@ -112,21 +146,22 @@ print(t"'{joined}'")  # 'H, e, l, l, o'
 
 ## Reverse a string
 
-Reversed strings often pop up, so here are several ways to reverse your
-Mojo strings.
+Puzzles love making you read things backward: mirrored patterns, reversed
+paths, and sequences that need to match in either direction.
 
-A basic ASCII byte index reversal uses a reversed range. Add this:
+For ASCII input, you can reverse the bytes by walking backward from the end
+of the string:
 
 ```mojo
 var s: String = ""
 
 # construct and reverse the non-inclusive range
-for index in reversed(range(string.byte_length())):
+for index in reversed(range(length)):
     s = s + String(string[byte=index])
 print(t"Reversed bytes: '{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
 ```
 
-Strings provide reversed slice iterators:
+Strings also provide a reversed slice iterator:
 
 ```mojo
 # use the reversed iterator
@@ -138,56 +173,64 @@ print(t"'{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
 
 ### Checkpoint
 
-- The first example reverses ASCII bytes.
-- `codepoint_slices_reversed()` reverses Unicode codepoints.
-- List comprehensions can express either solution more concisely.
+- For ASCII sources, reversing bytes and reversing codepoints produces the
+  same result.
+- `reversed(range(length))` walks the byte indices from the end to the
+  beginning.
+- `codepoint_slices_reversed()` gives you an iterator that walks Unicode
+  codepoints in reverse without calling `reversed()`.
 
-## String indexing
+## Slice out what you need
 
-In Mojo, you must specify which index scheme you'll use with strings.
-Calling `string[0]` is an error. Index with:
+Puzzle inputs often pack several pieces of information into one line. When
+you know where the data you want appears, indexing and slicing let you
+reach directly into the text.
 
-- `byte=` specifies the byte or bytes in the string data. Pass an
-  integer or contiguous slice. Access is O(1).
-- `codepoint=` specifies a Unicode codepoint, pass an integer or contiguous
-  slice, access is O(N).
-- `grapheme=` specifies a single Unicode grapheme cluster. Access is O(N).
-  You can't "slice" graphemes the way you can slice bytes and codepoints.
+Mojo strings support three indexing schemes. You must state the one you're
+using. Calling `string[0]` is an error:
 
-### Using contiguous slice syntax
+- `byte=` indexes the underlying bytes. Pass an integer or contiguous slice.
+  Access is O(1).
+- `codepoint=` indexes Unicode codepoints. Pass an integer or contiguous
+  slice. Access is O(N).
+- `grapheme=` indexes a single Unicode grapheme cluster. Access is O(N).
+  Grapheme indexing doesn't support slices.
 
-To access Mojo strings, you can pass a single zero-based index (an `Int` or
-`IntLiteral`) or a contiguous slice:
+For ASCII puzzle input, use `byte=`.
 
-- Use `n:m` for "n through m - 1", `[n, m)`
-- Use `n:` for "the suffix starting at index n", `[n, length)`
-- Use `:m` for "the prefix ending just before index m", `[0, m)`
+### Slice the line
 
-Add these examples to your project code to see this in action:
+Slices let you grab a prefix, suffix, or section from the middle:
+
+- `n:m` selects from `n` through `m - 1`: `[n, m)`.
+- `n:` selects the suffix starting at `n`: `[n, length)`.
+- `:m` selects the prefix ending before `m`: `[0, m)`.
+
+Try all three on the puzzle input:
 
 ```mojo
 # O(1) byte slicing to a view
 print(t"byte prefix:     '{string[byte=:5]}'")           # '  Day'
-print(t"byte suffix:     '{string[byte=length - 5:]}'")  # 'udy '
+print(t"byte suffix:     '{string[byte=length - 5:]}'")  # 'udy  '
 print(t"byte substring:  '{string[byte=2:10]}'")         # 'Day 1: 2'
 ```
 
 ### Checkpoint
 
-- With strict ASCII strings, using `byte=` and `codepoint=` indexing
-  results are equivalent, but `byte=` performs better.
-- Indexed content returns a view into the string's data, not a copy of the
-  specified bytes.
-- The flame character ("🔥") is a single grapheme. The four-member family
-  ("🧑‍🧑‍🧒‍🧒") uses seven (four people, three connectors). Fun tip: iterate over
-  its codepoints to see the individual family members.
+- For ASCII input, `byte=` and `codepoint=` give you the same results,
+  but byte indexing is faster.
+- Indexed content returns a view into the string's data, not a copy.
 
-## Search and check
+## Search for clues
 
-Three patterns cover most "is this in there?" questions: the `in`
-operator, `find`, and the `startswith` / `endswith` pair.
+Before you parse a line, you often need to know what it contains. Does it
+have the marker you need? Where does a field start? Does the line have the
+right prefix or suffix?
 
-Add this at the end of `main()`:
+Three tools cover these common searches: `in`, `find()`, and
+`startswith()` / `endswith()`.
+
+Try them on your input:
 
 ```mojo
 # Contains
@@ -206,15 +249,17 @@ Run it. You should see `True`, `7`, `-1`, `True`, `True`.
 
 ### Checkpoint
 
-- `s.find(sub)` returns the byte position of the first match, or `-1`
-  if the substring isn't present. There's no "raises if missing" variant.
-- `s.startswith(prefix)` and `s.endswith(suffix)` skip the `find == 0`
-  bookkeeping. Useful for filtering log lines by tag.
-- `s.count(sub)` returns the number of occurrences when you need it.
+- Use `sub in s` when you need a yes-or-no containment check.
+- `s.find(sub)` returns the byte position of the first match, or `-1` when
+  the substring isn't present.
+- `s.startswith(prefix)` and `s.endswith(suffix)` test the ends directly.
+  They're useful for filtering input lines by markers or tags.
+- `s.count(sub)` counts occurrences when you need more than presence.
 
 ### Try this
 
-Throw this into your code:
+There's a trap hiding in `find()`. A missing value returns `-1`, and `-1`
+is truthy:
 
 ```mojo
 if string.find('!'):
@@ -223,7 +268,7 @@ else:
     print("You'd expect to be here, but you're not")
 ```
 
-Don't use `find` in tests. Use `in` for containment:
+That's why you shouldn't use `find()` as a containment test. Use `in`:
 
 ```mojo
 if '!' in string:
@@ -232,13 +277,13 @@ else:
     print("Not found")  # This prints
 ```
 
-`"x" in s` returns a `Bool`. Use it when you need yes-or-no.
+`"x" in s` returns a `Bool`. Reach for `find()` when you need the
+position. Reach for `in` when you only need to know whether it's there.
 
-After you're done, clean up the containment test.
+## Test for empty strings
 
-## Strings are truthy
-
-Check for empty strings with `if`. Add this:
+You just saw that integers have truthiness. Strings do too. An empty string
+is falsy and a non-empty string is truthy:
 
 ```mojo
 if "":
@@ -247,9 +292,24 @@ elif "🔥":
     print("This is printed")
 ```
 
-## Trim your strings
+### Checkpoint
 
-Remove surrounding whitespace with `strip()`. Add this to the end of main:
+Use string truthiness when you care whether text is empty:
+
+```mojo
+if text:
+    # There's something to process.
+```
+
+Use `in` when you care whether specific text appears.
+
+## Clean up the edges
+
+Puzzle input often comes with whitespace you don't want: spaces around
+fields, indentation, or trailing newlines. Use `strip()` to remove
+whitespace from both ends.
+
+Clean up your reading line:
 
 ```mojo
 var cleaned = string.strip()
@@ -260,34 +320,34 @@ The string length drops from 31 to 27 as the white space is trimmed.
 
 ### Checkpoint
 
-- `strip()` returns a `StringSlice` with leading and trailing whitespace
-  removed. The original `string` is unchanged.
-- Use `lstrip()` for the left side only and `rstrip()` for the right.
+- `strip()` returns a `StringSlice` without leading and trailing whitespace.
+- Use `lstrip()` to clean the left edge only, and `rstrip()` for the right.
 
 ### Try this
 
-Choose what to strip with the optional character list:
+You can tell `strip()` exactly which characters to remove:
 
 ```mojo
 var test = "**🔥Fooxx"
 print(t"'{test.strip("x*🔥")}'")  # 'Foo'
 ```
-
 The trim set matches Unicode codepoints, not bytes.
 
-Default whitespace characters include newlines and tabs as well as spaces:
+Without an argument, strip() removes whitespace, including newlines and
+tabs:
 
 ```mojo
 test = "\n\n\t Hi\n \n"
 print(t"'{test.strip()}'")  # 'Hi'
 ```
 
-## Substituting text
+## Replace what you know
 
-`replace(old, new)` returns a new `String` with every occurrence of
-`old` swapped for `new`. Pass an empty string for `new` to delete.
+Sometimes puzzle input contains text you want to normalize before you
+process it. Use `replace(old, new)` to replace every occurrence of one
+substring with another.
 
-Add this at the end of `main()`:
+Standardize the weather description:
 
 ```mojo
 var standardized = cleaned.replace("Partly Cloudy", "Cloudy")
@@ -298,19 +358,23 @@ print(no_units)  # loudy! Maybe not a great idea
 
 Run it. You should see `Day 1: 20.5C, Cloudy` and `Day 1: 20.5, loudy`.
 
+Oops. You removed the C from Cloudy, too.
+
 ### Checkpoint
 
-- `replace` returns a new `String`. The original is untouched.
-- The old search string doesn't have to match the replacement string length.
-- It replaces every use, not just the first. That's why the `C` in `Cloudy`
-  disappeared.
+- `replace()` returns a new `String`. The original is unchanged.
+- The replacement can have a different length from the text it replaces.
+- `replace()` replaces _every_ match, not just the one you had in mind.
 
 ## Cut up your string
 
-Use `split(sep)` to select a separator string and break a string into
-pieces around it.
+## Split the line into fields
 
-Add this at the end of `main()`:
+Your cleaned line still contains two different pieces of information: the
+reading and the weather description. When input has a consistent separator,
+use `split(sep)` to break it into fields.
+
+Split on the comma and space:
 
 ```mojo
 var parts = cleaned.split(", ")
@@ -318,37 +382,43 @@ print(t"split on ', ': {parts}") # [Day 1: 20.5C, Partly Cloudy]
 print(t"count: {len(parts)}")  # 2
 ```
 
-Run it. Two parts. `Day 1: 20.5C` and `Partly Cloudy`.
+Now you can work with "Day 1: 20.5C" and "Partly Cloudy" separately.
 
 ### Checkpoint
 
-- `split(sep)` returns a `List[StringSlice]`. Each slice is a reference
-  into the original string. It stays alive as long as the source does.
-  And vice versa.
-- For newline-aware splits (`\n`, `\r\n`, `\r`), use
-  `splitlines()`. This drops any trailing final empty line caused by
-  a terminal newline.
-- `split()` with no argument splits on whitespace runs and drops empty
-  segments. Useful when fields are separated by arbitrary spacing.
+- `split(sep)` returns a `List[StringSlice]`. Each slice is a view into
+  the original string, not a copy.
+- `split()` with no argument splits on runs of whitespace and drops empty
+  segments. Reach for it when fields are separated by inconsistent spacing.
+- `splitlines()` handles `\n`, `\r\n`, and `\r`. It drops a final empty
+  line caused by a trailing newline.
 
-## Change case
+## Normalize for matching
 
-`lower()` and `upper()` return new strings with the casing of
-your choice. Useful for case-insensitive matching.
+Sometimes you care about the text but not its capitalization. Normalize
+the case before you compare or search.
 
-Add this at the end of `main()`:
+You already split the weather description into `parts[1]`. Try both
+directions:
 
 ```mojo
-print(cleaned.lower())  # partly cloudy
-print(cleaned.upper())  # PARTLY CLOUDY
+print(parts[1].lower())  # partly cloudy
+print(parts[1].upper())  # PARTLY CLOUDY
+```
+
+Now you can make a case-insensitive containment check by normalizing before
+you search:
+
+```mojo
 print(t"'cloudy' matches: {'cloudy' in cleaned.lower()}")  # True
 ```
 
 ### Checkpoint
 
-- `lower()` and `upper()` operate on ASCII letters only.
-- Non-ASCII case folding (German `ß`, Turkish dotted-i `İ`) needs
-  codepoint-by-codepoint handling with `codepoints()`.
+- `lower()` and `upper()` return new strings. They don't change the original.
+- They operate on ASCII letters only.
+- For Advent's ASCII input, normalizing case gives you a simple way to
+  compare text without worrying about capitalization.
 
 ## Final code
 
@@ -364,26 +434,26 @@ def main():
     # TString construction with interpolation
     var t = t"5 plus 5 is {5 + 5}"
     var math = "Correct: " + String(t)
-    print(math) # Correct: 5 plus 5 is 10
+    print(math)  # Correct: 5 plus 5 is 10
 
     print("\nSTRING LENGTH")
     var length = string.byte_length()
-    print(t"{string} length: {length}") # 31
+    print(t"{string} length: {length}")  # 31
 
     print("\nSTRING ITERATION")
-    print([slice for slice in string.codepoint_slices()])
-    # [ ,  , D, a, y,  , 1, :,  , 2, 0, ., 5, C, ,,  , P, a,
-    #  r, t, l, y,  , C, l, o, u, d, y,  ,  ]
-
-    print("\nITERATOR TO LIST COERSION CHECKPOINT")
-    var list = List(string.codepoint_slices())
-    print(list)
-    # [ ,  , D, a, y,  , 1, :,  , 2, 0, ., 5, C, ,,  , P, a,
-    #  r, t, l, y,  , C, l, o, u, d, y,  ,  ]
+    print([String(t"'{slice}'") for slice in string.codepoint_slices()])
+    # [' ', ' ', 'D', 'a', 'y', ' ', '1', ':', ' ', '2', '0', '.', '5',
+    #  'C', ',', ' ', 'P', 'a', 'r', 't', 'l', 'y', ' ', 'C', 'l', 'o',
+    #  'u', 'd', 'y', ' ', ' ']
 
     print("\nJOINING STRING SLICES")
     var joined = "".join([slice for slice in string.codepoint_slices()])
-    print(t"'{joined}'")  # '  Day 1: 20.5C, Partly Cloudy  '
+    print(t"'{joined}'")  #  '  Day 1: 20.5C, Partly Cloudy  '
+
+    joined = "".join([
+        slice for slice in string.codepoint_slices()
+        if " " not in slice])
+    print(t"'{joined}'")  #  'Day1:20.5C,PartlyCloudy'
 
     print("\nJOINING CHECKPOINT")
     var hello: String = "Hello"
@@ -394,7 +464,7 @@ def main():
     var s: String = ""
 
     # construct and reverse the non-inclusive range
-    for index in reversed(range(string.byte_length())):
+    for index in reversed(range(length)):
         s = s + String(string[byte=index])
     print(t"Reversed bytes: '{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
 
@@ -405,9 +475,9 @@ def main():
     print(t"'{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
 
     print("\nSTRING INDEXING")
-    print(t"byte prefix:     '{string[byte=:5]}'")           # '  Day'
+    print(t"byte prefix:     '{string[byte=:5]}'")  # '  Day'
     print(t"byte suffix:     '{string[byte=length - 5:]}'")  # 'udy '
-    print(t"byte substring:  '{string[byte=2:10]}'")         # 'Day 1: 2'
+    print(t"byte substring:  '{string[byte=2:10]}'")  # 'Day 1: 2'
 
     print("\nSEARCH AND CHECK")
     # Contains
@@ -418,21 +488,21 @@ def main():
     print(t"position of '!':      {string.find('!')}")  # -1, not found
 
     # Start and end
-    print(t"starts with '  Day':  {string.startswith('  Day')}")   # True
+    print(t"starts with '  Day':  {string.startswith('  Day')}")  # True
     print(t"ends with 'Cloudy  ': {string.endswith('Cloudy  ')}")  # True
 
     print("\nTESTING SEARCHES")
-    if string.find('!'):
+    if string.find("!"):
         print("-1 is truthy")  # This prints
     else:
         print("You'd expect to be here, but you're not")
 
-    if '!' in string:
+    if "!" in string:
         print("Found")
     else:
-        print("Not found")   # This prints
+        print("Not found")  # This prints
 
-    print("\nSTRING TRUTHYNESS")
+    print("\nSTRING TRUTHINESS")
     if "":
         print("Won't be printed")
     elif "🔥":
@@ -457,12 +527,12 @@ def main():
 
     print("\nSPLITTING STRINGS")
     var parts = cleaned.split(", ")
-    print(t"split on ', ': {parts}") # [Day 1: 20.5C, Partly Cloudy]
+    print(t"split on ', ': {parts}")  # [Day 1: 20.5C, Partly Cloudy]
     print(t"count: {len(parts)}")  # 2
 
     print("\nCHANGING CASE")
-    print(cleaned.lower())  # partly cloudy
-    print(cleaned.upper())  # PARTLY CLOUDY
+    print(parts[1].lower())  # partly cloudy
+    print(parts[1].upper())  # PARTLY CLOUDY
     print(t"'cloudy' matches: {'cloudy' in cleaned.lower()}")  # True
 ```
 

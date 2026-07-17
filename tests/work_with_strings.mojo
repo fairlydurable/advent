@@ -19,19 +19,19 @@ def main():
     print(t"{string} length: {length}")  # 31
 
     print("\nSTRING ITERATION")
-    print([slice for slice in string.codepoint_slices()])
-    # [ ,  , D, a, y,  , 1, :,  , 2, 0, ., 5, C, ,,  , P, a,
-    #  r, t, l, y,  , C, l, o, u, d, y,  ,  ]
-
-    print("\nITERATOR TO LIST COERSION CHECKPOINT")
-    var list = List(string.codepoint_slices())
-    print(list)
-    # [ ,  , D, a, y,  , 1, :,  , 2, 0, ., 5, C, ,,  , P, a,
-    #  r, t, l, y,  , C, l, o, u, d, y,  ,  ]
+    print([String(t"'{slice}'") for slice in string.codepoint_slices()])
+    # [' ', ' ', 'D', 'a', 'y', ' ', '1', ':', ' ', '2', '0', '.', '5',
+    #  'C', ',', ' ', 'P', 'a', 'r', 't', 'l', 'y', ' ', 'C', 'l', 'o',
+    #  'u', 'd', 'y', ' ', ' ']
 
     print("\nJOINING STRING SLICES")
     var joined = "".join([slice for slice in string.codepoint_slices()])
-    print(t"'{joined}'")  # '  Day 1: 20.5C, Partly Cloudy  '
+    print(t"'{joined}'")  #  '  Day 1: 20.5C, Partly Cloudy  '
+
+    joined = "".join([
+        slice for slice in string.codepoint_slices()
+        if " " not in slice])
+    print(t"'{joined}'")  #  'Day1:20.5C,PartlyCloudy'
 
     print("\nJOINING CHECKPOINT")
     var hello: String = "Hello"
@@ -42,7 +42,7 @@ def main():
     var s: String = ""
 
     # construct and reverse the non-inclusive range
-    for index in reversed(range(string.byte_length())):
+    for index in reversed(range(length)):
         s = s + String(string[byte=index])
     print(t"Reversed bytes: '{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
 
@@ -80,7 +80,7 @@ def main():
     else:
         print("Not found")  # This prints
 
-    print("\nSTRING TRUTHYNESS")
+    print("\nSTRING TRUTHINESS")
     if "":
         print("Won't be printed")
     elif "🔥":
@@ -109,6 +109,6 @@ def main():
     print(t"count: {len(parts)}")  # 2
 
     print("\nCHANGING CASE")
-    print(cleaned.lower())  # partly cloudy
-    print(cleaned.upper())  # PARTLY CLOUDY
+    print(parts[1].lower())  # partly cloudy
+    print(parts[1].upper())  # PARTLY CLOUDY
     print(t"'cloudy' matches: {'cloudy' in cleaned.lower()}")  # True

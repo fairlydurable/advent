@@ -76,5 +76,5 @@ For now, the goal is simple:
 ## Hands-on Mojo
 
 This workbook is part of a "Hands-on Mojo" series that takes you from the
-basics all the way to systems and developing kernels. From syntax to language
-semantics, we've got you.
+basics all the way to systems. From syntax to language semantics, we've
+got you.

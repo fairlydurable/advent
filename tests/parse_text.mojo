@@ -39,15 +39,4 @@ def main() raises:
     print(t"Parsed {len(temps)} temperatures: {temps}")
     print(t"Rejected {len(rejected)}: {rejected}")
 
-    if len(temps) == 0:
-        print("No usable readings")
-    else:
-        var total: Float64 = 0.0
-
-        for temp in temps:
-            total += temp
-
-        var average = total / Float64(len(temps))
-        print(t"Average of {len(temps)} readings: {average}")
-
     remove(log)

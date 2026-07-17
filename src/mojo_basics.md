@@ -3,7 +3,7 @@
 Advent of Code drops a fresh puzzle every midnight in December, and every
 one starts the same way: hold some data, loop it, branch on it, survive bad
 input. This page builds that toolkit on one week of temperature readings, the
-dataset you'll carry through the whole book.
+dataset you'll carry through the whole workbook.
 
 ## Hello Mojo
 

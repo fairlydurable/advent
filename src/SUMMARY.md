@@ -15,15 +15,12 @@
 - [Work with grids](./work_with_grids.md)
 - [Reuse your code](./reuse_your_code.md)
 - [Call Python and C libraries](./call_python_and_c.md)
+- [Learn more!](./call_to_action.md)
 
 Tentative
-- Use lists, dictionaries, and sets (unique values)
 - Roll random numbers
-- Sort and count values
-- Iterate over data
-- Break problems into functions // higher order
+- Break problems into functions // higher order stuff
 - Build simple reusable code <--
-- Use Python
-- Use C libraries
-- Parallize/Threads/Wait/Sync?
+- Use Python and C libraries (numpy, c-blas)
+- Parallize/Threads/Wait/Sync? <-- probably no
 -->
