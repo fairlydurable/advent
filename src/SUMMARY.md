@@ -10,11 +10,12 @@
 - [Pull numbers from text](./pull_numbers_from_text.md)
 - [Count and look up values](./count_and_look_up_values.md)
 - [Sort and summarize values](./sort_and_summarize_values.md)
+
+<!--
 - [Work with grids](./work_with_grids.md)
 - [Reuse your code](./reuse_your_code.md)
 - [Call Python and C libraries](./call_python_and_c.md)
 
-<!--
 Tentative
 - Use lists, dictionaries, and sets (unique values)
 - Roll random numbers

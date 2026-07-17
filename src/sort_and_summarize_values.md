@@ -1,26 +1,28 @@
 # Sort and summarize values 🔥
 
-Your puzzle wants the coldest day, the warmest, and a running total. Here's what
-you need: sort a list, read off its extremes, add it up, and filter it down.
+Manipulating data helps you get to the truths hidden within it. When your
+puzzle wants the coldest and warmest days, for example, it helps to use
+Mojo sorting and filtering.
 
 ## The week's readings
 
-You have one reading per day and the day names beside them. Create
-`summary.mojo`:
+Your puzzle supplies you with the names of each weekday and a temperature
+reading for each day. Create `summary.mojo`:
 
 ```mojo
 def main() raises:
     var days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
     var readings: List[Float64] = [22.1, 19.8, -2.5, 25.0, 18.7]
-    print(t"{len(readings)} readings")
+    var count = len(readings)
+    print(t"{count} readings")  # 5 readings
 ```
 
 ## Sort to rank
 
-Sorting puts the readings in order, and once they're ordered the coldest and
-warmest sit at the two ends.
+Sorting helps you order the list, so you can pick the coldest and
+warmest days from the two ends.
 
-Add the import at the top:
+Import `sort` at the top of your file:
 
 ```mojo
 from std.builtin.sort import sort
@@ -29,66 +31,62 @@ from std.builtin.sort import sort
 Sort a copy so the original day order stays intact:
 
 ```mojo
-    var ordered = readings.copy()
-    sort(ordered)
-    print(t"sorted: {ordered}")  # [-2.5, 18.7, 19.8, 22.1, 25.0]
-    print(t"coldest: {ordered[0]}, warmest: {ordered[len(ordered) - 1]}")
+var ordered = readings.copy()
+sort(ordered)
+print(t"sorted: {ordered}")  # [-2.5, 18.7, 19.8, 22.1, 25.0]
+print(t"coldest: {ordered[0]}, warmest: {ordered[count - 1]}")
 ```
 
 ### Checkpoint
 
-- `sort` is a free function, not a method. It sorts in place and ascending, so it
-  returns nothing and rewrites the list you pass.
-- Sort a `.copy()` when you still need the original order. Here `readings` stays
-  aligned with `days`.
-- For a custom order (largest first, by some field), `sort` also accepts a
-  comparison function. Ascending is the common case, so it's the default here.
+- `sort()` is a free function, not a method. It sorts in place and
+  ascending, so it returns nothing and rewrites the list you pass.
+- Sort a `.copy()` when you need the original ordering. Here `readings`
+  stays aligned with `days`.
 
 ## Top of the list
 
-Once a list is sorted ascending, the largest values are simply the last ones. No
-second pass needed.
+Once a list is sorted, the largest values are at the end. Slice off the
+last three to retrieve them in ascending order:
 
 ```mojo
-    var n = len(ordered)
-    print(t"top 3 warmest: {ordered[n - 1]}, {ordered[n - 2]}, {ordered[n - 3]}")
+print(t"top 3 warmest: {ordered[(count - 3):]}")  # [19.8, 22.1, 25.0]
 ```
 
 ### Checkpoint
 
-- After an ascending sort, the top *k* values are the last *k*, read back to
-  front.
-- This is the "top three" move puzzles ask for constantly: sort once, then take
-  from the end.
+- This is the "top three" move puzzles ask for constantly: sort once, then
+  take from the end.
 
-## Add it up
+## Reduce your data
 
-Mojo has no `sum` that swallows a whole list, so total it with a loop, the same
-pattern you used for the average earlier.
+You've been asked to find the average temperature over the five-day period.
+
+To sum your list, add the following import:
 
 ```mojo
-    var total = 0.0
-    for r in readings:
-        total += r
-    var mean = total / Float64(len(readings))
-    print(t"total: {round(total, 1)}, mean: {round(mean, 2)}")
+from std.algorithm.reduction import sum
+```
+
+Call `sum()` and divide by `count`. This line also rounds the result to a
+single decimal place.
+
+```mojo
+print(t"average: {round(sum(readings) / Float64(count), 1)}")  # 16.6
 ```
 
 ### Checkpoint
 
-- `min` and `max` take individual values or a few arguments, not a whole list.
-  For a list's extremes, sort and read the ends, as you did above.
-- `round(value, digits)` tidies a float for display. Floating-point totals carry
-  representation noise, so `83.1` prints cleaner than the raw `83.10000000000001`.
+- `round(value, digits)` tidies a float for display. Floating-point totals
+  carry representation noise. `round()` helps you control that.
 
 ## Filter it down
 
-A comprehension with an `if` builds a new list from only the values that pass a
-test. Pull out the readings below freezing:
+Use a comprehension filtered for negative values to build a new list:
 
 ```mojo
-    var below = [r for r in readings if r < 0.0]
-    print(t"below freezing: {below}")  # [-2.5]
+var below = [r for r in readings if r < 0.0]
+print(t"below freezing: {below}")  # [-2.5]
 ```
 
 ### Checkpoint
@@ -98,19 +96,59 @@ test. Pull out the readings below freezing:
 
 ## Pair the days
 
-`zip` walks two lists in step, handing you one value from each. Use it to line
-readings back up with their day names.
+The `days` list has important information you need to tell _when_ the
+weather extreme happened.
+
+`zip()` combines two lists, allowing you to walk them in step. It hands you
+one value from each. Use this to align readings with their day names:
 
 ```mojo
-    for day, r in zip(days, readings):
-        print(t"{day}: {r}")
+for day, r in zip(days, readings):
+    print(t"{day}: {r}")
 ```
 
 ### Checkpoint
 
-- `zip` yields a tuple per step, unpacked here into `day` and `r`. It's in the
-  prelude, so no import.
-- It stops at the shorter list, so mismatched lengths won't run off the end.
+- `zip()` yields a tuple per step, unpacked here into `day` and `r`.
+- If the lists have different lengths, `zip()` stops at the shorter list,
+  so you won't run off the end.
+
+## Match the days to the extremes
+
+Using std.algorithm.reduction, import `min()` and `max()`, then fetch the
+minimum and maximum values without sorting:
+
+```mojo
+from std.algorithm.reduction import sum, min, max
+
+# ...
+
+var max_value = max(readings)  # 25.0
+var min_value = min(readings)  # -2.5
+```
+
+Knowing the values helps you find their original indices in `readings`:
+
+```mojo
+try:
+    var min_index = readings.index(min_value)
+    print(t"Coldest day: {days[min_index]} with {min_value}°C")
+    var max_index = readings.index(max_value)
+    print(t"Hottest day: {days[max_index]} with {max_value}°C")
+except e:
+    print(e)
+```
+
+Wrapping your calls to `index()` in a `try`/`except` statement ensures
+that any errors will be caught and reported.
+
+If you'd like to see that error in action, tweak either value. For example
+`.index(min_value + 1.0)`.
+
+### Checkpoint
+
+- The reduction package lets you use `sum()`, `product()`, `min()`,
+  `max()`, and `mean()`.
 
 ## Final code
 
@@ -118,43 +156,40 @@ Your complete `summary.mojo`:
 
 ```mojo
 from std.builtin.sort import sort
-
+from std.algorithm.reduction import sum, min, max
 
 def main() raises:
     var days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
     var readings: List[Float64] = [22.1, 19.8, -2.5, 25.0, 18.7]
+    var count = len(readings)
+    print(t"{count} readings")  # 5 readings
 
-    # sort to rank
     var ordered = readings.copy()
     sort(ordered)
     print(t"sorted: {ordered}")  # [-2.5, 18.7, 19.8, 22.1, 25.0]
-    print(t"coldest: {ordered[0]}, warmest: {ordered[len(ordered) - 1]}")
+    print(t"coldest: {ordered[0]}, warmest: {ordered[count - 1]}")
+    print(t"top 3 warmest: {ordered[(count - 3):]}")
+    print(t"average: {round(sum(readings) / Float64(count), 1)}")  # 16.6
 
-    # top 3 warmest are the last three after an ascending sort
-    var n = len(ordered)
-    print(t"top 3 warmest: {ordered[n - 1]}, {ordered[n - 2]}, {ordered[n - 3]}")
-
-    # add it up
-    var total = 0.0
-    for r in readings:
-        total += r
-    var mean = total / Float64(len(readings))
-    print(t"total: {round(total, 1)}, mean: {round(mean, 2)}")
-
-    # filter below freezing
     var below = [r for r in readings if r < 0.0]
     print(t"below freezing: {below}")  # [-2.5]
 
-    # pair each day with its reading
     for day, r in zip(days, readings):
         print(t"{day}: {r}")
+
+    var max_value = max(readings)  # 25.0
+    var min_value = min(readings)  # -2.5
+
+    try:
+        var min_index = readings.index(min_value)
+        print(t"Coldest day: {days[min_index]} with {min_value}°C")
+        var max_index = readings.index(max_value)
+        print(t"Hottest day: {days[max_index]} with {max_value}°C")
+    except e:
+        print(e)
 ```
 
 ## What you touched
 
-Sorting a list in place, reading extremes and top-*k* from the ends, totaling and
-averaging with a loop, `round` for display, filtered comprehensions, and `zip`
-to walk two lists together.
-
-Next, the sensors spread out across a field, and the readings arrive as a grid
-you walk cell by cell.
+Sorting, reductions (`sum()`, `min()`, `max()`), filtered comprehensions,
+`zip()`, and locating values with `index()`.

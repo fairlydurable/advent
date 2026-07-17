@@ -1,5 +1,7 @@
 # Work with grids 🔥
 
+**WORK IN PROGRESS**
+
 Your puzzle lays the sensors out as a grid and asks for the cold spots. Here's
 what you need: store a grid, walk every cell, and check its neighbors.
 
@@ -138,6 +140,3 @@ def main() raises:
 Nested lists as a grid, row-major indexing, nested loops to walk every cell,
 coordinate deltas held in a list, tuple unpacking, chained comparisons for bounds
 checks, and the walk-and-check-neighbors pattern.
-
-Next, you stop rewriting the same parsing and scanning by hand, and fold it into
-functions you reuse across every puzzle.

@@ -1,5 +1,7 @@
 # Reuse your code 🔥
 
+**WORK IN PROGRESS**
+
 Your puzzle is really the same handful of moves every day: read the input, pull
 the numbers, clean them up. Here's what you need: wrap those moves in functions
 you write once and call all December.
@@ -158,6 +160,3 @@ def main() raises:
 Naming a move as a function, return-type contracts, returning a `List` with `^`,
 default arguments, keyword arguments at the call site, and composing small
 functions into a pipeline.
-
-Next, you reach past Mojo entirely, handing the corrected readings to Python and
-C to answer one last question: is the Pole actually warming?
