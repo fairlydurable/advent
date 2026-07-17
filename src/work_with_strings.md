@@ -9,10 +9,10 @@ This page gives you one deliberately messy line and walks through the string
 operations you'll reach for again and again: trim it, search it, slice it,
 split it, and reshape it.
 
-## Relax, it's ASCII
+## It's plain ASCII
 
-Advent of Code inputs are plain ASCII. That means one byte per character,
-simple indexing, and no grapheme-cluster surprises.
+Advent of Code inputs are ASCII. That means one byte per character, simple
+indexing, and no grapheme-cluster surprises.
 
 For puzzle input, reach for `String` and work by byte. It's fast, direct,
 and a good fit for extracting fields, checking markers, and splitting lines
@@ -390,8 +390,6 @@ Now you can work with "Day 1: 20.5C" and "Partly Cloudy" separately.
   the original string, not a copy.
 - `split()` with no argument splits on runs of whitespace and drops empty
   segments. Reach for it when fields are separated by inconsistent spacing.
-- `splitlines()` handles `\n`, `\r\n`, and `\r`. It drops a final empty
-  line caused by a trailing newline.
 
 ## Normalize for matching
 

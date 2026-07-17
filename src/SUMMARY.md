@@ -10,17 +10,7 @@
 - [Pull numbers from text](./pull_numbers_from_text.md)
 - [Count and look up values](./count_and_look_up_values.md)
 - [Sort and summarize values](./sort_and_summarize_values.md)
-
-<!--
 - [Work with grids](./work_with_grids.md)
 - [Reuse your code](./reuse_your_code.md)
 - [Call Python and C libraries](./call_python_and_c.md)
-- [Learn more!](./call_to_action.md)
-
-Tentative
-- Roll random numbers
-- Break problems into functions // higher order stuff
-- Build simple reusable code <--
-- Use Python and C libraries (numpy, c-blas)
-- Parallize/Threads/Wait/Sync? <-- probably no
--->
+- [Learn more](./call_to_action.md)

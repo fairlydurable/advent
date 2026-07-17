@@ -204,6 +204,3 @@ def main() raises:
 Byte-by-byte string scanning, digit runs, `Int` and `Float64` parsing,
 `raises` propagation, returning a `List` with `^`, index ranges, splitting
 into fields, and validating a parse against a total the input hands you.
-
-Next, the readings pile up from every station, and you need to tally who
-reported and find who went silent.

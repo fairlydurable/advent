@@ -4,6 +4,8 @@ Your puzzle is really the same handful of moves every day: read the input,
 pull the numbers, clean them up. Here's what you need: wrap those moves in
 functions you write once and call all December.
 
+**WORK IN PROGRESS**
+
 ## The moves you keep repeating
 
 By now you've pulled integers from text, corrected readings, and averaged

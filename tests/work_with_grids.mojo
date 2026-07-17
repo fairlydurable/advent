@@ -1,84 +1,65 @@
-struct Grid(Writable):
-    var data: List[Int]
-    var cols: Int
-    var rows: Int
+def main():
 
-    def __init__(out self, var data: List[Int], cols: Int):
-        self.data = data^
-        self.cols = cols
-        self.rows = len(self.data) / cols
+    var data = [
+          6,  13,   6,   9,   8,  14,   3,
+          9,  10,  11,  14,  11,  10,   8,
+          9,   9,   6,   6,   8,  14,   6,
+         12,  11,   3,   4,   7,   7,   4,
+         14,   7,   8,   6,   5,   8,   6
+    ]
 
-    # Convert index from row/col to linear
-    def index(self, row: Int, col: Int) -> Int:
-        return row * self.cols + col
+    var rows, cols = 5, 7
 
     # Convert index from linear to row/col
-    def index(self, at: Int) -> Tuple[Int, Int]:
-        return (at / self.cols, at % self.cols)
+    def index_to_coord(index: Int) {imm} -> Tuple[Int, Int]:
+        return (index / cols, index % cols)
 
-    # Return the value at `index`
-    def __getitem__(self, index: Int) -> Int:
-        return self.data[index]
+    # Convert index from row/col to linear
+    def get_coord_data(row: Int, col: Int) {imm} -> Int:
+        return data[row * cols + col]
 
-    # Return the value at (row, col)
-    def __getitem__(self, *, row: Int, col: Int) -> Int:
-        return self.data[self.index(row, col)]
+    var cool_indices: List[Tuple[Int, Int]] = []
 
-    # Return the entire row at `row` as a list
-    def __getitem__(self, *, row: Int) -> List[Int]:
-        var start = self.index(row, 0)
-        var end = self.index(row + 1, 0)
-        return List[Int](self.data[start:end])  # convert the Span to a List
-
-    # Required by `Writable`
-    def write_to(self, mut writer: Some[Writer]):
-        var rows: Int = len(self.data) / self.cols
+    # Write the data in a grid format
+    def write_data() {imm data, imm}:
         var print_width = 4
         for row in range(rows):
-            for item in self[row=row]:
-                writer.write(t"{String(item).ascii_rjust(print_width)}")
+            for idx in range(row * cols, (row + 1) * cols):
+                var item = data[idx]
+                var col = idx % cols
+                print(t"{String(item).ascii_rjust(print_width)}", end="")
+                if (row, col) in cool_indices:
+                    print(t"*", end="")
+                else:
+                    print(t" ", end="")
             if row < rows - 1:
-                writer.write("\n")
+                print("")
+        print()
 
+    write_data()
 
-def main():
-    # Uses row-major input
-    var input = [8, 7, 8, 9, 7, 5, 6, 8, 8, 6, 7, 9]
-    var cols = 4
-    var grid = Grid(input^, cols)
-    # print(grid.index(1, 3))    # 7
-    # print(grid[7])             # 8
-    # print(grid[row=1, col=3])  # 8
-    print(grid)
-
-    var cool_spots = 0  # cumultive count of cooler spots
     var radius = 1  # How wide to search neighbors
-    var count = (
-        radius * 2 + 1
-    ) ** 2 - 1  # number of neighbors to compare against
-    var half_count = count / 2  # half of the neighbors
+    var count = (radius * 2 + 1) ** 2 - 1  # neighbor count (3x3 - 1)
+    var half_count = count / 2  # half of the neighbors (4)
 
-    for index in range(len(grid.data)):
-        var row, col = grid.index(index)  # fetch the row and column
-        var cooler = 0  # keeps a running comparison count
-        var spot = grid[row=row, col=col]  # the current spot's value
+    for index in range(len(data)):
+        var row, col = index_to_coord(index)         # fetch the row and column
+        var cooler = 0                       # keeps a running comparison count
+        var spot = get_coord_data(row=row, col=col)  # the current spot's value
 
-        # Check boundaries
-        if not (
-            radius <= row < grid.rows - radius
-            and radius <= col < grid.cols - radius
-        ):
+        # Check boundaries for safe indexing
+        if not (radius <= row < rows - radius
+            and radius <= col < cols - radius):
             continue
 
-        for dRow in range(-radius, radius + 1):
-            for dCol in range(-radius, radius + 1):
-                if dRow == 0 and dCol == 0:
-                    continue  # skip the current spot
-                var neighbor = grid[row=(row + dRow), col=(col + dCol)]
-                if neighbor > spot:
-                    cooler += 1
-        if cooler > half_count:  # each spot has 8 neighbors
-            print(t"({row}, {col}) is cooler")
-            cool_spots += 1
+        for dRow in range(row - radius, row + radius + 1):
+            for dCol in range(col - radius, col + radius + 1):
+                if dRow == row and dCol == col: continue  # current spot
+                var neighbor = get_coord_data(row=dRow, col=dCol)
+                if neighbor > spot: cooler += 1
 
-    print(t"Cool spots: {cool_spots}")
+        if cooler > half_count:  # each spot has 8 neighbors
+            print(t"Cool spot: ({row}, {col})")
+            cool_indices.append((row, col))
+
+    write_data()

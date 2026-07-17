@@ -1,321 +1,325 @@
 # Work with grids 🔥
 
-Dr. Green has been wondering if some warming devices aren't working
-in the garden. The crops aren't happy in some places. Solution: a grid
-of temperature sensors across the garden.
+Dr. Green's garden isn't doing well. A few warming pads have failed, but
+nobody knows which ones.
 
-You'll find nearest neighbor searches in Advent of Code problems. Your
-puzzle provides grid data. You determine where your grid has cool spots.
+Fortunately, every square in the garden has a temperature sensor.
 
-Here's what you need: store a grid, index it, walk its neighbors, and
-apply some math.
+Your puzzle gives you the temperature readings as a grid. Your job is to
+find the cool spots by comparing each sensor with its neighbors.
+
+Along the way you'll learn how to represent a grid, convert between
+coordinates and array indices, walk neighboring cells, and visualize
+your results.
 
 ## Today's data
 
-Some puzzles hand you a text file, where you can break down a string from
-line-by-line text. Others provide input, where you end up with a list. Your
-garden puzzle went with the second option for a 3 row, 4 column grid:
+Until now, you've mostly worked with strings and lists. Many Advent
+puzzles instead describe a two-dimensional world: a map, maze, image,
+game board, or sensor grid.
+
+Although the data is conceptually two-dimensional, it's usually easiest to
+store it as a single list. You recover rows and columns with a little
+arithmetic.
+
+### The data
+
+Here's today's puzzle data:
 
 ```text
-8, 7, 8, 9, 7, 5, 6, 8, 8, 6, 7, 9
+ 6,  13,   6,   9,   8,  14,   3,
+ 9,  10,  11,  14,  11,  10,   8,
+ 9,   9,   6,   6,   8,  14,   6,
+12,  11,   3,   4,   7,   7,   4,
+14,   7,   8,   6,   5,   8,   6
 ```
 
-To model this as a grid, create `grid.mojo` and add a new type:
+### Create the project file
 
-```mojo
-struct Grid:
-    var data: List[Int]  # backing data
-    var cols: Int  # the number of columns
-    var rows: Int  # the number of rows
+Add this to `grid.mojo`:
 
-    def __init__(out self, var data: List[Int], cols: Int):
-        self.data = data^  # Transfer data
-        self.cols = cols   # Copy data
-        self.rows = len(self.data) / cols  # Calculate data
-```
-
-### Checkpoint
-
-- Your new type has three fields: a list and two integers.
-- Every field must be initialized in your initializer.
-- You don't have to _pass_ every field value to the initializer. `row` is
-  calculated for you in this implementation.
-- There's no integrity check here so pass data that is `row * cols` big.
-- All instance methods in struct types use `self` as their first argument.
-  In initializers, `out` lets you return the newly constructed value without
-  a return arrow.
-
-## Construct your grid
-
-Put your test values into a `List` and build a grid from that data:
-
-Add `main()`:
-
-```mojo
+``` mojo
 def main():
-    # Uses row-major input
-    var input = [8, 7, 8, 9, 7, 5, 6, 8, 8, 6, 7, 9]
-    var cols = 4
-    var grid = Grid(input^, cols)
+    var data = [ ... ] # from above
+    var rows, cols = 5, 7
 ```
+
+The list contains five rows of seven readings each.
+
+## Convert between indices and coordinates
+
+The readings live in a single list, but puzzles think in rows and
+columns. You'll constantly move between the two representations.
+
+Add these helper functions in `main()` as nested items:
+
+``` mojo
+def index_to_coord(index: Int) {imm} -> Tuple[Int, Int]:
+    return (index / cols, index % cols)
+
+def get_coord_data(row: Int, col: Int) {imm} -> Int:
+    return data[row * cols + col]
+```
+
+The first converts a list index into (row, col). The second converts a
+row and column back into a list index to retrieve the value.
 
 ### Checkpoint
 
-- When constructing the `Grid`, you transfer ownership of `input` with `^`.
-  Using `var` before `data` in the initializer tells the grid to expect that
-  transfer.
-- Don't try to print `input` after assigning `grid`. It no longer has a value.
-- Your data is available in `grid.data` but there's currently no special
-  row/column indexing.
+- `{imm}` gives the nested functions read-only access to values defined in
+  `main()`. Here it captures `rows`, `cols`, and `data` as immutable
+  references.
+- The data stays in one linear list using row-major ordering.
+- Division finds the row. Modulo finds the column.
+- Looking up a coordinate computes an index instead of copying data.
+- Returning coordinates as a tuple lets you unpack them naturally.
 
-## Add index conversion
+## Print the grid
 
-Your data is just a list. It doesn't become a grid until you provide a way
-to access it with (row, column) coordinates. These two utility methods let
-you move in both directions. Add them to your `Grid` type:
+Before solving the puzzle, it's helpful to see the data laid out as a
+grid.
 
-```mojo
-# Convert index from row/col to linear
-def index(self, row: Int, col: Int) -> Int:
-    return row * self.cols + col
+Add a `write_data()` helper that loops over each row and column, formats
+the values into aligned columns with `ascii_rjust()`, and prints the
+result.
 
-# Convert index from linear to row/col
-def index(self, at: Int) -> Tuple[Int, Int]:
-    return (at / self.cols, at % self.cols)
-```
-
-Test this out with an index of `(1, 3)`. It should return 7. Your grid
-uses row-major indices.
-
-## Add direct grid indexes
-
-Mojo's `__getdata__()` dunder methods unlock square brackets lookup.
-
-Add the following methods to your `Grid` struct, so you can call `grid[7]`
-and `grid[row=1, col=3]` to fetch values:
+Run it to verify the input before you start searching.
 
 ```mojo
-# Return the value at `index`
-def __getitem__(self, index: Int) -> Int:
-    return self.data[index]
-
-# Return the value at (row, col)
-def __getitem__(self, *, row: Int, col: Int) -> Int:
-    return self.data[self.index(row, col)]
-
-# Return the entire row at `row` as a list
-def __getitem__(self, *, row: Int) -> List[Int]:
-    var start = self.index(row, 0)
-    var end = self.index(row + 1, 0)
-    return List[Int](self.data[start:end]) # convert the Span to a List
-```
-
-### Checkpoint
-
-- You can overload `__getitem__()` for as many square-bracket schemes as
-  you need.
-- Placing an asterisk in a declaration makes the following argument
-  require keywords. That's why you index with `row=` and `col=`.
-
-## Print your grid
-
-As you work on your puzzles, you'll want to see grids using 2-D layouts.
-Build some feedback into your grid by making it `Writable`. Add the
-`Writable` trait to your type:
-
-```mojo
-struct Grid(Writable):
-```
-
-Then, build a `write_to()` method to satisfy your trait conformance
-requirement:
-
-```mojo
-# Required by `Writable`
-def write_to(self, mut writer: Some[Writer]):
-    var rows: Int = len(self.data) / self.cols
+# Write the data in a grid format
+def write_data() {imm data, imm}:
     var print_width = 4
-    for row in range(rows):  # Walk each row
-        for item in self[row=row]:
-            writer.write(t"{String(item).ascii_rjust(print_width)}")
+    for row in range(rows):
+        for idx in range(row * cols, (row + 1) * cols):
+            var item = data[idx]
+            print(t"{String(item).ascii_rjust(print_width)}", end="")
         if row < rows - 1:
-            writer.write("\n")
-```
+            print("")
+    print()
 
-Now you can print your grid in `main()` with `print(grid)`:
-
-```text
-   8   7   8   9
-   7   5   6   8
-   8   6   7   9
+write_data()
 ```
 
 ### Checkpoint
 
-- Adjust your `print_width` as desired.
-- Call `ascii_rjust()` to use pad your string with right justification.
-  This defaults to using spaces for the padding. Mojo's standard library
-  also offers `ascii_ljust()` and `ascii_center()`.
-- This code uses the row-at-a-time fetcher you just built.
+- `ascii_rjust()` right-aligns values into fixed-width columns.
+- Adjust `print_width` if your values become wider.
+- Nested loops naturally walk rows and columns.
 
-## Checking neighbors
+## Compare neighboring cells
 
-Most grid puzzles compare a cell to its neighbors. To see if a coordinate
-is a "cool spot", find out how many neighbors are warmer, and how many
-are colder.
+A single reading doesn't tell you much. Is 6 cold? Compared to what?
+Is that a cool spot? How do you know? Do you pick a cut-off number?
 
-Add this code to set up your puzzle specifics, namely a neighbor radius of
-one away from each spot:
+The interesting part is how each reading compares with the temperatures
+around it. For this puzzle, a point is considered a **cool spot** if most
+of its neighbors are warmer.
 
-```mojo
-var cool_spots = 0  # cumultive count of cooler spots
-var radius = 1      # How wide to search neighbors
-var count = (radius * 2 + 1) ** 2 - 1  # number of neighbors to compare against
-var half_count = count / 2  # half of the neighbors
+### Clarifying the search
+
+You'll need to define some puzzle parameters to limit your search and
+produce your results.
+
+``` mojo
+var radius = 1      # how far to look
+var count = (radius * 2 + 1) ** 2 - 1  # how many neighbors?
+var half_count = count / 2             # half of the neighbors
 ```
 
-Add this to the end of `main()` and run it. Your sample garden only has two
-interior spots, and they are both cool spots. Bad news for Dr. Green:
+A radius of one creates a 3×3 neighborhood. Excluding the center leaves
+eight neighboring cells.
+
+### Performing the search
+
+Here's the heart of your project. For each location, you examine the
+square neighborhood centered on that spot. Every warmer neighbor
+increments `cooler`. If more than half the neighbors are warmer, you've
+found a cool spot.
 
 ```mojo
-for index in range(len(grid.data)):
-    var row, col = grid.index(index)   # fetch the row and column
-    var cooler = 0             # keeps a running comparison count
-    var spot = grid[row=row, col=col]  # the current spot's value
+for index in range(len(data)):
+    var row, col = index_to_coord(index)         # fetch the row and column
+    var cooler = 0                       # keeps a running comparison count
+    var spot = get_coord_data(row=row, col=col)  # the current spot's value
 
-    # Check boundary safety
-    if not (radius <= row < grid.rows - radius and 
-            radius <= col < grid.cols - radius):
+    # Check boundaries for safe indexing
+    if not (radius <= row < rows - radius
+        and radius <= col < cols - radius):
         continue
 
-    for dRow in range(-radius, radius + 1):
-        for dCol in range(-radius, radius + 1):
-            if dRow == 0 and dCol == 0: continue  # skip the current spot
-            var neighbor = grid[row=(row + dRow), col=(col + dCol)]
-            if neighbor > spot:
-                cooler += 1
-    if cooler > half_count:  # each spot has 8 neighbors
-        print(t"({row}, {col}) is cooler")
-        cool_spots += 1
+    for dRow in range(row - radius, row + radius + 1):
+        for dCol in range(col - radius, col + radius + 1):
+            if dRow == row and dCol == col: continue  # current spot
+            var neighbor = get_coord_data(row=dRow, col=dCol)
+            if neighbor > spot: cooler += 1
 
-print(t"Cool spots: {cool_spots}")
+    if cooler > half_count:  # each spot has 8 neighbors
+        print(t"Cool spot: ({row}, {col})")
 ```
 
-This code iterates through each available spot, looks at its neighbors
-and compares its temperatures. If there are 5 or more neighbors out of
-8 that are hotter, it is a cool spot.
+The boundary check uses chained comparisons to make sure that at the
+current spot, there are at least radius values in each direction. This
+makes sure indexes in the following loop are safe.
 
-Try swapping out the first of the two 6s to 10, and run again. Your
-cool spot count drops to one. You can also add more rows and columns
-to extend your checks.
+Chained comparisons split pairwise: `x < y <= z` is equivalent to
+`x < y and y <= z`. They're a compact Mojo way to express related
+checks.
+
+When you run the search, you'll find four cool spots. In the next step,
+you'll mark them on the grid so they're easy to see.
 
 ### Checkpoint
 
-- The boundary check uses chained comparisons, ensuring each spot has
-  enough space around it to allow indexing out from it.
-- In Mojo, chained comparisons are pairwise. `a < b <= c` is equivalent to
-  `a < b and b <= c`.
-- The two delta lists (`dRow` and `dCol`) iterate across offsets from
-  the current spot.
-- This code skips the case (0, 0), where you compare a spot to itself.
-- The neighbor look-up uses `[row=, col=]` indexing adjusted by deltas in
-  each direction.
-- `cooler` provides a running tally of neighbor comparisons.
-- `cool_spots` provides a running tally of cool spots.
+- The outer loop visits every cell.
+- The inner loops visit each neighboring location.
+- The current cell is skipped.
+- `cooler` counts warmer neighbors for one location.
+
+## Visualize the answer
+
+Finding the answer is good.
+
+Seeing it is even better. 
+
+Follow these four steps to update `write_data()` to mark cool spots with
+`*`, then call it again after the search finishes.
+
+1. Add this before your `write_data()` method:
+
+   ```mojo
+   var cool_indices: List[Tuple[Int, Int]] = []
+   ```
+
+2. Append the `(row, col)` tuple to the `cool_indices` list:
+
+   ```mojo
+   if cooler > half_count:  # each spot has 8 neighbors
+       print(t"Cool spot: ({row}, {col})")
+       cool_indices.append((row, col))  # add this
+   ```
+
+3. At the very end of `main()` call `write_data()`:
+
+   ```mojo
+   write_data()
+   ```
+
+4. Update `write_data()` with this code, so it will use the `cool_indices`
+   list to mark your results:
+
+   ```mojo
+   def write_data() {imm data, imm}:
+       var print_width = 4
+       for row in range(rows):
+           for idx in range(row * cols, (row + 1) * cols):
+               var item = data[idx]
+               var col = idx % cols
+               print(t"{String(item).ascii_rjust(print_width)}", end="")
+               if (row, col) in cool_indices:
+                   print(t"*", end="")
+               else:
+                   print(t" ", end="")
+           if row < rows - 1:
+               print("")
+       print()
+   ```
+
+### Checkpoint
+
+- Store interesting coordinates separately instead of modifying the
+  data.
+- The same display routine works before and after the search.
+- Simple visualization is an effective debugging tool.
+
+## Run the app
+
+The highlighted grid makes it clear where the colder regions are:
+
+```text
+   6   13    6    9    8   14    3 
+   9   10   11   14   11   10    8 
+   9    9    6*   6*   8   14    6 
+  12   11    3*   4*   7    7    4 
+  14    7    8    6    5    8    6 
+```
+
+The failed warming pad is immediately obvious.
 
 ## Final code
 
 Your complete `grid.mojo`:
 
 ```mojo
-struct Grid(Writable):
-    var data: List[Int]
-    var cols: Int
-    var rows: Int
+def main():
 
-    def __init__(out self, var data: List[Int], cols: Int):
-        self.data = data^
-        self.cols = cols
-        self.rows = len(self.data) / cols
+    var data = [
+          6,  13,   6,   9,   8,  14,   3,
+          9,  10,  11,  14,  11,  10,   8,
+          9,   9,   6,   6,   8,  14,   6,
+         12,  11,   3,   4,   7,   7,   4,
+         14,   7,   8,   6,   5,   8,   6
+    ]
 
-    # Convert index from row/col to linear
-    def index(self, row: Int, col: Int) -> Int:
-        return row * self.cols + col
+    var rows, cols = 5, 7
 
     # Convert index from linear to row/col
-    def index(self, at: Int) -> Tuple[Int, Int]:
-        return (at / self.cols, at % self.cols)
+    def index_to_coord(index: Int) {imm} -> Tuple[Int, Int]:
+        return (index / cols, index % cols)
 
-    # Return the value at `index`
-    def __getitem__(self, index: Int) -> Int:
-        return self.data[index]
+    # Convert index from row/col to linear
+    def get_coord_data(row: Int, col: Int) {imm} -> Int:
+        return data[row * cols + col]
 
-    # Return the value at (row, col)
-    def __getitem__(self, *, row: Int, col: Int) -> Int:
-        return self.data[self.index(row, col)]
+    var cool_indices: List[Tuple[Int, Int]] = []
 
-    # Return the entire row at `row` as a list
-    def __getitem__(self, *, row: Int) -> List[Int]:
-        var start = self.index(row, 0)
-        var end = self.index(row + 1, 0)
-        return List[Int](self.data[start:end])  # convert the Span to a List
-
-    # Required by `Writable`
-    def write_to(self, mut writer: Some[Writer]):
-        var rows: Int = len(self.data) / self.cols
+    # Write the data in a grid format
+    def write_data() {imm data, imm}:
         var print_width = 4
         for row in range(rows):
-            for item in self[row=row]:
-                writer.write(t"{String(item).ascii_rjust(print_width)}")
+            for idx in range(row * cols, (row + 1) * cols):
+                var item = data[idx]
+                var col = idx % cols
+                print(t"{String(item).ascii_rjust(print_width)}", end="")
+                if (row, col) in cool_indices:
+                    print(t"*", end="")
+                else:
+                    print(t" ", end="")
             if row < rows - 1:
-                writer.write("\n")
+                print("")
+        print()
 
+    write_data()
 
-def main():
-    # Uses row-major input
-    var input = [8, 7, 8, 9, 7, 5, 6, 8, 8, 6, 7, 9]
-    var cols = 4
-    var grid = Grid(input^, cols)
-    # print(grid.index(1, 3))    # 7
-    # print(grid[7])             # 8
-    # print(grid[row=1, col=3])  # 8
-    print(grid)
-
-    var cool_spots = 0  # cumultive count of cooler spots
     var radius = 1  # How wide to search neighbors
-    var count = (
-        radius * 2 + 1
-    ) ** 2 - 1  # number of neighbors to compare against
-    var half_count = count / 2  # half of the neighbors
+    var count = (radius * 2 + 1) ** 2 - 1  # neighbor count (3x3 - 1)
+    var half_count = count / 2  # half of the neighbors (4)
 
-    for index in range(len(grid.data)):
-        var row, col = grid.index(index)  # fetch the row and column
-        var cooler = 0  # keeps a running comparison count
-        var spot = grid[row=row, col=col]  # the current spot's value
+    for index in range(len(data)):
+        var row, col = index_to_coord(index)         # fetch the row and column
+        var cooler = 0                       # keeps a running comparison count
+        var spot = get_coord_data(row=row, col=col)  # the current spot's value
 
-        # Check boundaries
-        if not (
-            radius <= row < grid.rows - radius
-            and radius <= col < grid.cols - radius
-        ):
+        # Check boundaries for safe indexing
+        if not (radius <= row < rows - radius
+            and radius <= col < cols - radius):
             continue
 
-        for dRow in range(-radius, radius + 1):
-            for dCol in range(-radius, radius + 1):
-                if dRow == 0 and dCol == 0:
-                    continue  # skip the current spot
-                var neighbor = grid[row=(row + dRow), col=(col + dCol)]
-                if neighbor > spot:
-                    cooler += 1
-        if cooler > half_count:  # each spot has 8 neighbors
-            print(t"({row}, {col}) is cooler")
-            cool_spots += 1
+        for dRow in range(row - radius, row + radius + 1):
+            for dCol in range(col - radius, col + radius + 1):
+                if dRow == row and dCol == col: continue  # current spot
+                var neighbor = get_coord_data(row=dRow, col=dCol)
+                if neighbor > spot: cooler += 1
 
-    print(t"Cool spots: {cool_spots}")
+        if cooler > half_count:  # each spot has 8 neighbors
+            print(t"Cool spot: ({row}, {col})")
+            cool_indices.append((row, col))
+
+    write_data()
 ```
 
 ## What you touched
 
-Nested lists as a grid, row-major indexing, nested loops to walk every
-cell, coordinate deltas held in a list, tuple unpacking, chained
-comparisons for bounds checks, and the walk-and-check-neighbors pattern.
+Representing a grid in a linear array, row-major indexing, tuple
+unpacking, nested loops, coordinate arithmetic, chained comparisons,
+neighborhood searches, simple visualization, and one of the most common
+patterns in Advent of Code.

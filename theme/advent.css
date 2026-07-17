@@ -1,7 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap");
 
 :root {
-  --mojo-ember: #9f4f00;
+  --mojo-ember: #efa01e; /* #9f4f00; */
   --mojo-nebula: #4057d8;
   --mojo-teal: #087a58;
   --mojo-plum: #7c3f82;
