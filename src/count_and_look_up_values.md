@@ -162,7 +162,7 @@ Dictionary keys must be hashable, and integer tuples fit that requirement.
   one step.
 - Reach for compound keys whenever "per X" quietly becomes "per X and Y".
 
-## Comprehensions: Smart data retrieval
+## Comprehensions: smart data retrieval
 
 Now imagine your data set looks like this:
 
