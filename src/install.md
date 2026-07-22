@@ -56,16 +56,16 @@ environment with Mojo.
 curl -fsSL https://pixi.sh/install.sh | sh
 
 # Create project with Modular channels (Release)
-pixi init hello-world \
+pixi init advent-of-code \
   -c https://conda.modular.com/max/ -c conda-forge \
-  && cd hello-world
+  && cd advent-of-code
 
 # OR
 
 # Create project with Modular channels (Nightly)
-pixi init hello-world \
+pixi init advent-of-code \
   -c https://conda.modular.com/max-nightly/ -c conda-forge \
-  && cd hello-world
+  && cd advent-of-code
 
 # Install Mojo
 pixi add mojo
@@ -91,21 +91,21 @@ echo 'default-channels = ["https://conda.modular.com/max-nightly",' \
 curl -LsSf https://astral.sh/uv/install.sh | sh
 
 # Create project and environment
-uv init hello-world && cd hello-world
+uv init advent-of-code && cd advent-of-code
 uv venv && source .venv/bin/activate
 
 # Install Mojo (Release)
 uv pip install mojo \
-  --index https://whl.modular.com/nightly/simple/ \
+  --index https://whl.modular.com/nightly/simple/
 ```
 
 ## Install Mojo (Nightly)
 
+```bash
 uv pip install mojo \
   --index https://whl.modular.com/nightly/simple/ \
   --prerelease allow
-
-```text
+```
 
 The `--prerelease allow` flag is required only when installing beta
 (or dev) builds.
@@ -122,15 +122,15 @@ paths, then verify with `mojo --version`.
 Install the
 [Mojo extension](https://marketplace.visualstudio.com/items?itemName=modular-mojotools.vscode-mojo)
 for syntax highlighting, code completion, and debugging. Also available on
-[Open VSX](https://open-vsx.org/extension/modular-mojotools/vscode-mojo).
-Verify the publisher is Modular.
+[Open VSX](https://open-vsx.org/extension/modular-mojotools/vscode-mojo). Verify
+the publisher is Modular.
 
 ## Update Mojo
 
-* **pixi**: `pixi update mojo`
-* **uv**: `uv sync --upgrade-package mojo`
+- **pixi**: `pixi update mojo`
+- **uv**: `uv sync --upgrade-package mojo`
 
 ## Uninstall Mojo
 
-* **pixi**: `pixi remove mojo && exit`
-* **uv**: `uv pip uninstall mojo && uv sync && deactivate`
+- **pixi**: `pixi remove mojo && exit`
+- **uv**: `uv pip uninstall mojo && uv sync && deactivate`

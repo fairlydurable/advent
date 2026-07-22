@@ -1,185 +1,140 @@
 # Work with files 🔥
 
-Every Advent puzzle arrives as a file of input, and the first thing you do is
-read it. Here you'll write a temperature log to disk, read it back, and prove
-the round-trip, the same moves you'll make on every puzzle in December.
+<div class="intro">
+  <div class="intro-text">
 
-## Save some temperatures
+Most Advent puzzles begin with a text file full of input. Before you can
+solve anything, you have to load that data into your program.
 
-Temporary files let you work with real files without invented paths or
-cleaning up after yourself. The `NamedTemporaryFile` type creates them
-for you in your system's temporary directory.
+In this chapter you'll read a temperature log, inspect the file that
+holds it, create your own report, and update it as new readings arrive.
+Along the way you'll meet `Path`, `FileHandle`, and Mojo's context
+managers: the same tools you'll use again and again throughout Advent.
 
-Create a new file, `temp_log.mojo`. Add this code and run it.
-Note the path of the newly created file and hop over to
-check it from your OS.
+  </div>
 
-```mojo
-from std.tempfile import NamedTemporaryFile
+  <picture class="intro-image">
+    <source
+      srcset="img/files-dark.png"
+      media="(prefers-color-scheme: dark)"
+    >
+    <img
+      src="img/files-bright.png"
+      alt="Mojo inspecting a North Pole temperature monitor."
+    >
+  </picture>
+</div>
 
-def main() raises:
-    var content = "20.5, 22.3, 19.8, 25.1"  # temperatures
-    var path: String  # scoped to `main()`
+## Grab your data
 
-    with NamedTemporaryFile(delete=False) as f:  # context manager
-        f.write(content)
-        path = f.name
+Things are getting a little frosty at the North Pole.
 
-    # file is closed here
+Santa embraced the Internet of Things years ago, and temperature sensors
+are scattered all over the workshop. Rudolph worries about visibility
+for the sleigh, but his nephew Chiller records the daily sensor logs.
 
-    print(t"Wrote to {path}")
-```
+Download the sample input used for this page:
 
-Mojo's `with` statement manages resources using a _context manager_.
-Managers use setup (`__enter__()`) and cleanup (`__exit__()`) operations
-defined in custom types.
+[temp_log.txt](./downloads/temp_log.txt)
 
-Cleanup (`__exit__()`) will always run at the end of the manager's scope,
-even if you raise an error.
+Place it in your work folder, next to where you'll build your program.
 
-When the manager reaches the end of scope, `NamedTemporaryFile` closes the
-file handle (`f`) in `__exit__()`. Normally it deletes the temporary
-file but `delete=False` overrides that.
+## Read the sensor log
 
-### Try this
+Unlike the previous page, your data already exists. That's how Advent
+of Code usually works. You download the puzzle input and let your
+program do the reading. Create `temp_log.mojo` so you can start reading:
 
-Remove `delete=False` and re-run the code. The `print` still fires, but the
-path it shows is gone after `with` completes. Put `delete=False` back in
-after you test.
-
-## Propagating errors
-
-Your app's entry point, `def main()`, declares `raises` because file
-operations may error. You either handle errors directly with a
-`try`/`except` statement or let `main()` raise the errors and crash
-from an uncaught exception.
-
-### Try this
-
-In a scratch file, write:
-
-```mojo
-def main() raises:
-
-    with open("path/to/nonexistent/file.txt", "r") as f:
-        var content = f.read()
-```
-
-- Remove `raises` to see the _compilation_ error.
-- Remove `raises` _and_ embed the context manager in a `try`/`except`
-statement to handle the _runtime_ error without crashing.
-- Use a path to an existing text file and print the `content`.
-
-## File guards
-
-Wrap string-based paths in a `Path` to ask questions.
-Add this import to the top of your file:
-
-```mojo
-from std.pathlib import Path
-```
-
-And add this at the end of `main()` and run it:
-
-```mojo
-    var p = Path(path)
-    print(t"Exists: {p.exists()}, is file: {p.is_file()}") # True and True
-```
-
-### Checkpoint
-
-- `exists()`, `is_file()`, and `is_dir()` return `Bool` without raising.
-  Broken symlinks return `False`.
-- Use `exists()` to check whether the file is there. You may still encounter
-  OS race conditions, so production code should handle errors with
-  `try`/`except`.
-- `Path(".").listdir()` returns a `List[Path]` for everything in a directory.
-
-### Try this
-
-For nested paths, join them with the `/` operator. Add this to a
-scratch file:
-
-```mojo
+``` mojo
 from std.pathlib import Path
 
-def main():
-    var q = Path("data") / "today.txt"
-    print(q)  # data/today.txt
+def main() raises:
+    var log = Path("./temp_log.txt")
+    print(log.read_text())  # -20.5, -22.3, -19.8, -25.1, etc
 ```
 
-The `Path` value is valid, but it won't point to a real file unless you
-happen to have "data/today.txt" lying around:
-
-```mojo
-# ... previous content
-
-print(q.exists())  # False
-```
-
-## Read a file
-
-Read the file back and confirm that it contains the same string.
-`Path.read_text()` is the one-liner whole-file read. Add this to the end of
-your code:
-
-```mojo
-    var roundtrip = p.read_text()
-    print(roundtrip)  # 20.5, 22.3, 19.8, 25.1
-```
-
-Run it.
+Run this to make sure your content matches the file.
 
 ### Checkpoint
 
-- `print()` adds the newline. There isn't one in your original
-  string or your file.
-- `read_text()` opens, reads the whole file as a `String`, and closes the
-  file without a context manager.
-- `write_text(value)` is the matching write side for `Path`. It creates the
-  file or overwrites whatever was there.
-- These two are the 80% case. Reach for them whenever you're working with a
-  whole file at once.
-- For bytes instead of text, use `read_bytes()` and `write_bytes()`. See
-  the API references for details.
+- `Path` wraps a filesystem path.
+- `read_text()` opens the file, reads the whole file as a `String`,
+  then closes it again. If you duplicate the final line here, you
+  get the same data.
+- Whole-file reads are the 80% case for Advent inputs.
 
-## Validate
+### Try this
 
-Compare the two strings by adding this line:
+File operations can fail. That's why `main()` declares `raises`.
 
-```mojo
-    print(t"Match: {content == roundtrip}")
-```
+Try changing `"temp_log.txt"` to a filename that doesn't exist (like
+"path/to/nowhere", unless you actually have a file with that path). Then:
+
+- Remove `raises` and observe the _compile-time error._
+- Restore `raises`, then catch the _runtime error_ with `try`/`except`.
+- Put the filename back when you're finished.
 
 ### Checkpoint
 
-- A round-trip check is a sanity check, not a proof. It catches mismatches
-  caused by problems such as truncated or incorrectly encoded output. It
-  doesn’t prove that you wrote the intended content.
-- `String` equality is value-based. Strings with the same contents compare
-  as equal.
-- Not all types can be compared but `String`s can.
-- Mojo strings use bytewise lexical ordering.
+Ask the filesystem a few questions before you continue. These are good
+calls to have on-hand in your Mojo vocabulary:
 
-### Deeper Checkpoint for the curious
+``` mojo
+print(t"Exists: {log.exists()}")
+print(t"File:   {log.is_file()}")
+print(t"Dir:    {log.is_dir()}")
+```
 
-- Mojo strings implement both `Equatable` (`==` comparison) and
-  `Comparable` (ordering comparisons like `<` and `>=`).
-- Lexical ordering means both `"aa" < "ab"` and `"AA" < "aa"` are `True`.
-  Capital letters appear first in ASCII tables. Mojo compares overlapping
-  bytes, then falls back to length.
+- `exists()`, `is_file()`, and `is_dir()` return `Bool`.
+- Production code knows about race conditions and should be ready to handle
+  failures between checks and operations.
+
+## Create a report
+
+The elves want proof that today's sensor log arrived before anyone
+starts analyzing it. Add this:
+
+``` mojo
+var report = Path("report.txt")
+
+report.write_text(
+    String.write(
+        "North Pole Temperature Report",
+        "=============================",
+        "",
+        "Input: temp_log.txt",
+        "Status: Received",
+        "",
+        "Waiting for analysis...",
+        "",
+        sep="\n",
+    )
+)
+```
+
+Open `report.txt` in your editor.
+
+### Checkpoint
+
+- `write_text()` creates the file if needed.
+- If it already exists, the old contents are replaced.
+- Like `read_text()`, it handles opening and closing the file for you.
+- The extra blank line gives you a carriage return at the end.
 
 ## Append content
 
-Use `open()` with `"a"` (append) to add content to the end of your file:
+Just as you're about to leave, Chiller radios in one last temperature.
 
-```mojo
-    with open(p, "a") as f:
-        f.write(", 26.0")
-   # file is closed again after `with`
+Rather than replacing the report, append the new reading, which is -52.3.
+Oof, it's cold out there.
 
-    print(p.read_text())
+``` mojo
+with open(report, "a") as f:
+    var value = -52.3
+    f.write(t"\nLate reading: {Float64(value)} °C")
 ```
+
+Check the report to see the new line.
 
 ### Checkpoint
 
@@ -187,125 +142,142 @@ Use `open()` with `"a"` (append) to add content to the end of your file:
   (truncates), `"rw"` read-write, `"a"` append.
 - You don't need to import `open()`. Mojo's prelude makes it available
   automatically.
+- `FileHandle.write()` accepts any `Writable` value.
 - Inside the block, `f.write(value)` writes any `Writable` value.
   `f.read()` and `f.read_bytes()` cover the read side.
 
-## Add user input
+## Context managers
 
-Remove the `f.write(...)` line and add:
+When you call `open()`, it returns a _context manager_ typed as
+`FileHandle`. Context managers are types that implement two methods:
+`__enter__()` and `__exit__()`. Mojo calls these at the start and exit of
+`with` statements, helping you add custom code for set-up and tear-down.
 
-```mojo
-        while value := input("Today's high (°C): "):
-            f.write(t", {value}")
-```
+`FileHandle` automatically close the file they're managing when execution
+leaves the `with` block. Managers run `__exit__()` whether the block ends
+normally or with errors.
 
-The walrus assignment (`:=`) binds the `value` you enter so you can write it
-into the file. Enter a few readings and then press return without typing.
+You focus on reading and writing, instead of having to close the file
+directly.
 
 ### Checkpoint
 
-- Strings are truthy. An empty entry is `False`, ending the `while` loop.
-- `input(prompt)` prints the prompt with no trailing newline, reads one
-  line from stdin, returns a `String`.
-- `input()` raises if stdin can't be read.
-
-## Convert strings to floating point
-
-Update the code to convert your input to floating point. If you enter
-"15", it will record "15.0". If you enter "fifteen", you'll error.
-The input loop continues after showing an error message:
-
-```mojo
-    with open(p, "a") as f:
-        while value := input("Today's high (°C): "):
-            try:
-                var fp = Float64(value)
-                f.write(t", {fp}")
-            except e:
-                print(t"Invalid input '{value}': {e}")
-```
+- The binding used for `as` (in this case binding `f`) should always be
+  a context manager.
+- Context managers use duck typing. Implement the two dunder methods
+  (methods whose names start and end with double underscores), and use the
+  type for `with`. There's no context manager trait.
 
 ## Clean up
 
-When creating the temporary file, you set `delete=False`. The temp file
-is yours to manage. Remove it.
+You just got notice from Santa's security point-elf. Apparently, unlike
+your raw data, the report you generated is proprietary to North Pole
+Operations. Time to perform your polar data safety protocol:
 
-Add this import at the top:
-
-```mojo
+``` mojo
 from std.os import remove
-```
 
-At the end of `main()`, add:
+try:
+    if report.exists():
+        remove(report)
+except e:
+    print(t"Security protocol violation. File removal failed: {e}")
 
-```mojo
-    if p.exists():
-        remove(p)
-    print(t"After cleanup, exists: {p.exists()}")
+print(t"After cleanup, exists: {report.exists()}")
 ```
 
 ### Checkpoint
 
-- `remove(path)` raises if the path can't be removed (missing, a directory,
-  permission denied).
-- Use `exists()` to check whether the file is there. You may still encounter
-  OS race conditions, so production code should handle errors with
-  `try`/`except`.
-- For directories, use `rmdir` for empty ones or `removedirs`
-  for nested ones.
+- `remove()` deletes a file and raises if the operation fails.
+- Generated files are good candidates for cleanup. Puzzle inputs usually
+  stick around for future runs.
+- For production, make sure you cover race conditions and other situations
+  where removing the file fails with `try`/`except` statements.
+- For directories, use `rmdir()` for empty ones or `removedirs()` for
+  nested ones.
 
-### Try this
+## What you touched
 
-- Call `remove(p)` twice. The second call raises because the file is
-  already gone. If you need "remove if it exists," check first.
+`Path`, whole-file reads and writes, file guards, `FileHandle`, context
+managers, appending to files, error propagation, user input, and
+cleanup.
+
+## Also worth knowing
+
+**Bytes**
+
+Every text API has a bytes equivalent: `read_bytes()`, `write_bytes()`,
+`FileHandle.read_bytes()`, and `FileHandle.write_bytes()`.
+
+**Temporary files**
+
+`NamedTemporaryFile` creates scratch files that clean themselves up
+automatically. They're perfect for intermediate data, but most Advent
+puzzles work directly with an input file like the one you used here.
+
+**Scratch directories**
+
+`TemporaryDirectory` provides the same convenience for whole directory
+trees.
+
+**Path composition**
+
+Use the `/` operator to build nested paths:
+
+``` mojo
+var log = Path("data") / "temp_log.txt"
+```
 
 ## Final code
 
 Your complete `temp_log.mojo`:
 
 ```mojo
-from std.tempfile import NamedTemporaryFile
 from std.pathlib import Path
-from std.os import remove, rmdir, removedirs
+from std.os import remove
 
 def main() raises:
-    var content = "20.5, 22.3, 19.8, 25.1"  # temperatures
-    var path: String
+    var log = Path("./temp_log.txt")
+    print(log.read_text())
 
-    with NamedTemporaryFile(delete=False) as f:  # context manager
-        f.write(content)
-        path = f.name
+    print(t"Exists: {log.exists()}")   # True
+    print(t"File:   {log.is_file()}")  # True
+    print(t"Dir:    {log.is_dir()}")   # False
 
-    print(t"Wrote to {path}")
+    var report = Path("report.txt")
 
-    var p = Path(path)
-    print(t"Exists: {p.exists()}, is file: {p.is_file()}")
+    report.write_text(
+        String.write(
+            "North Pole Temperature Report",
+            "=============================",
+            "",
+            "Input: temp_log.txt",
+            "Status: Received",
+            "",
+            "Waiting for analysis...",
+            "",
+            sep="\n",
+        )
+    )
 
-    var roundtrip = p.read_text()
-    print(roundtrip)
+    with open(report, "a") as f:
+        var value = -52.3
+        f.write(t"\nLate reading: {Float64(value)} °C")
+    print(report.read_text())
 
-    print(t"Match: {content == roundtrip}")
+    try:
+        if report.exists():
+            remove(report)
+    except e:
+        print(t"Security protocol violation. File removal failed: {e}")
 
-    with open(p, "a") as f:
-        while value := input("Today's high (°C): "):
-            try:
-                var fp = Float64(value)
-                f.write(t", {fp}")
-            except e:
-                print(t"Invalid input '{value}': {e}")
-
-    print(p.read_text())
-
-    if p.exists():
-        remove(p)
-    print(t"After cleanup, exists: {p.exists()}")
+    print(t"After cleanup, exists: {report.exists()}")
 ```
 
 ## What you touched
 
-Temporary files, context managers, reading, writing, and deleting files,
-paths and file checks, user input, the walrus operator, truthy strings,
-type conversion.
+Context managers, reading, writing, and deleting files, paths and file
+checks, user input.
 
 ## Also worth knowing
 
@@ -319,8 +291,8 @@ A `Byte` aliases `UInt8`.
 
 **Scratch directories**:
 
-`from std.tempfile import TemporaryDirectory`
-works like `NamedTemporaryFile` but for a directory tree.
+`from std.tempfile import TemporaryDirectory, NamedTemporaryFile`
+helps you work with temporary content.
 
 **Path parts**:
 

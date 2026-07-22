@@ -28,9 +28,9 @@ def main():
     var joined = "".join([slice for slice in string.codepoint_slices()])
     print(t"'{joined}'")  #  '  Day 1: 20.5C, Partly Cloudy  '
 
-    joined = "".join([
-        slice for slice in string.codepoint_slices()
-        if " " not in slice])
+    joined = "".join(
+        [slice for slice in string.codepoint_slices() if " " not in slice]
+    )
     print(t"'{joined}'")  #  'Day1:20.5C,PartlyCloudy'
 
     print("\nJOINING CHECKPOINT")

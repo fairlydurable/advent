@@ -1,5 +1,11 @@
+# ===----------------------------------------------------------------------=== #
+#
+# This file is Modular Inc proprietary.
+#
+# ===----------------------------------------------------------------------=== #
 from std.builtin.sort import sort
 from std.algorithm.reduction import sum, min, max
+
 
 def main() raises:
     var days = ["Mon", "Tue", "Wed", "Thu", "Fri"]

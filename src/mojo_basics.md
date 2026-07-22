@@ -1,19 +1,42 @@
 # Mojo basics 🔥
 
-Advent of Code drops a fresh puzzle every midnight in December, and every
-one starts the same way: hold some data, loop it, branch on it, survive bad
-input. This page builds that toolkit on one week of temperature readings, the
-dataset you'll carry through the whole workbook.
+<div class="intro">
+  <div class="intro-text">
+
+Advent of Code drops a fresh puzzle every midnight in December. Many
+puzzles start with the same basic work: grab some data, loop over it, make
+decisions, and survive bad input.
+
+At the North Pole, a set of workshop sensors has recorded one week of
+temperature readings. Before anyone can spot problems in the heating
+system, they need a program that can inspect the data.
+
+You'll build that program here, creating the basic toolkit you'll use
+throughout the workbook.
+
+  </div>
+
+  <picture class="intro-image">
+    <source
+      srcset="img/temperatures-dark.png"
+      media="(prefers-color-scheme: dark)"
+    >
+    <img
+      src="img/temperatures-bright.png"
+      alt="Mojo inspecting a North Pole temperature monitor."
+    >
+  </picture>
+</div>
 
 ## Hello Mojo
 
 Create `analyzer.mojo` in your favorite IDE or editor.
 
-Add this to `analyzer.mojo`:
+Start with a message that identifies your new tool:
 
 ```mojo
 def main():
-    print("Temperature Analyzer")
+    print("North Pole Temperature Analyzer")
 ```
 
 Run it:
@@ -24,57 +47,63 @@ mojo analyzer.mojo
 
 ### Checkpoint
 
-- If you see "Temperature Analyzer", your setup works.
+- If you see "North Pole Temperature Analyzer", your setup works.
 - All Mojo executables use `main()` as their entry point.
 
 ## Variables and data
 
-Update your file to add temperature data:
+The workshop sensors have already collected four temperature readings.
+Store them in a list so your analyzer can work with them.
+
+Update your file:
 
 ```mojo
 def main():
-    print("Temperature Analyzer")
+    print("North Pole Temperature Analyzer")
 
     # Square brackets tell Mojo the `List` type at compile time
-    var temps: List[Float64] = [20.5, 22.3, 19.8, 25.1]
+    var temps: List[Float64] = [-20.5, -22.3, -19.8, -25.1]
 
-    print(t"Recorded {len(temps)} temperatures")  # TString
+    print(t"Recorded {len(temps)} temperatures")  # TStrings are templates
 ```
 
-Mojo's `TString` adds string interpolation to the language using a
-string template with braces. Mojo can replace the braced expressions
-with their values.
+Mojo's `TString` adds string interpolation, building a string template with
+braces. Mojo replaces the braced expressions with their values.
 
-This is a template, not a `String`. That means you can use it with
-`print()` because Mojo automatically converts it to a string. Printing is
-the #1 use case for `TStrings`. It also means you can't return it in
-place of a string.
+### Try this
 
-When you want to return a value, you need to cast. Open a throwaway file,
-then compile and run this:
+A `TString` is a template, not a `String`. Its braces can contain
+expressions, including function calls, arithmetic, and values, not just
+variable names.
+
+Open a throwaway file, then compile and run this example to see expressions
+in action:
 
 ```mojo
+from std.random import seed, random_si64
+
+# Int is your machine-sized integer. Int64 has a fixed width.
+# Normally they're the same, but on older hardware they may differ.
+def function_returning_random_number() -> Int64:
+    return random_si64(1, 10)
+
 def function_returning_string() -> String:
     var t_string = t"one plus one is {1 + 1}"  # Set up TString
     return String(t_string)                    # Explicit cast
 
 def main():
-    var string: String = function_returning_string()
-    print(string)  # one plus one is 2
+    seed()  # Seeds the random number generator
+    var string: String = function_returning_string()     # Assignment works
+    print(string + "!")        # Strings can be added, "one plus one is 2!"
+    print(t"{function_returning_random_number()}")    # A number in [1, 10]
 ```
-
-Remove the `String` cast and return `t_string` to see the error.
-
-### Checkpoint
-
-- TString expressions use braces. You can do math, call functions,
-  or interpolate values by name.
-- After removing the cast, the compiler error tells you a lot
-  about how Mojo represents a `TString`.
 
 ## Loops
 
-Print each temperature. Add this code to `main()` under the print statement:
+Before looking for patterns, print each day's reading so you can see what
+the sensors recorded.
+
+Add this code to `main()` under the existing print statement:
 
 ```mojo
 def main():
@@ -84,7 +113,7 @@ def main():
         print(t"  Day {index + 1}: {temps[index]}°C")
 ```
 
-Improve readability (and ditch the call to `len()`) with enumeration:
+Improve readability, and remove the call to `len()`, with enumeration:
 
 ```mojo
 for index, temp in enumerate(temps):
@@ -93,35 +122,40 @@ for index, temp in enumerate(temps):
 
 ### Checkpoint
 
-- The `range()` function is your `for loop` workhorse.
-- If you don't use a loop index, replace it with a discard: `for _ in ...`.
-- Mojo also has `while` loops. They work exactly as you'd expect.
-- All Mojo loops support `break` (stop the loop), `continue` (next
-  iteration), and `return` (leave the loop and return with or without a
-  value).
+- The `range()` function is your `for` loop workhorse.
+- If you don't use a loop index, replace it with a discard:
+  `for _ in ...`.
+- Mojo also has `while` loops. They work exactly as you expect.
+- All Mojo loops support `break` to stop the loop, `continue` to start
+  the next iteration, and `return` to leave the loop and return from the
+  function.
 
-A particularly Mojo add-on is the loop `else` clause. It runs when a loop
-finishes normally. If you `break`, it won't run `else`:
+### Try this
+
+A particularly Mojo addition is the loop `else` clause. It runs when a
+loop finishes normally. If you `break`, the `else` block doesn't run:
 
 ```mojo
 def main():
     for _ in range(5):
         print("Loop iteration")
-        # break # uncomment this to break and bypass `else:`
+        # break  # Uncomment to break and bypass `else:`
     else:
-        # always prints for completed loops
         print("Loop completed without break.")
 ```
 
 ## Functions
 
-Add this function above `main()` to calculate the average temperature:
+The workshop receives new readings every day. Put the average calculation
+in a function so the analyzer can reuse it.
+
+Add this function above `main()`:
 
 ```mojo
 def calculate_average(temps: List[Float64]) -> Float64:
     var total: Float64 = 0.0
     var count: Int = 0
-    for temp in temps:  # iterate over collection values
+    for temp in temps:  # Iterate over collection values
         total += temp
         count += 1
     return total / Float64(count)
@@ -134,26 +168,30 @@ Add this code to the end of `main()` to call the function:
 
 ```mojo
     var avg = calculate_average(temps)
-    print(t"Average: {round(avg, 2)}°C")  # Average: 21.92°C
+    print(t"Average: {round(avg, 2)}°C")  # Average: -21.92°C
 ```
 
 ### Checkpoint
 
-- Place return types after arrow tokens. Functions and methods without
-  return arrows return `None`.
+- Place return types after arrow tokens.
+- Functions and methods without return arrows return `None`.
 - Like all compound statements, `calculate_average()` needs a colon
-  before the body starts.
-- Function bodies must be indented and do so consistently. 4-space convention.
-- Use `round()` to specify the digits after the decimal.
+  before its body.
+- Function bodies must use consistent indentation. Mojo convention uses
+  four spaces.
+- Use `round()` to specify the number of digits after the decimal point.
 
 ## Conditionals
 
-Classify the average temperature. Add to the end of `main()`:
+The elves need more than a number. Classify the week's average so they can
+quickly see whether the workshop was cool, comfortable, or hot.
+
+Add this code to the end of `main()`:
 
 ```mojo
-    if avg > 25.0:
+    if avg > -20.0:
         print("Status: Hot week")
-    elif avg > 20.0:
+    elif avg > -25.0:
         print("Status: Comfortable week")
     else:
         print("Status: Cool week")
@@ -162,17 +200,20 @@ Classify the average temperature. Add to the end of `main()`:
 ### Checkpoint
 
 - Add as many `elif` clauses as you need, from zero to many.
-- Mojo has Python-like ternary: `value if condition else alt_value`.
-  There's no "Elvis" operator in the language.
+- Mojo has a Python-like conditional expression:
+  `value if condition else alt_value`.
+- Mojo doesn't have an Elvis operator.
 
 ## Raise errors
 
-Handle empty data by updating `calculate_average`. Now the function
-can raise an error.
+Sometimes a sensor fails and produces no readings. Your analyzer should
+notice instead of trying to calculate an average from an empty list.
+
+Update `calculate_average()` so the function can raise an error:
 
 ```mojo
 def calculate_average(temps: List[Float64]) raises -> Float64:
-    if len(temps) == 0:  # Empty list of temperatures
+    if len(temps) == 0:
         raise Error("No temperature data")
 
     var total: Float64 = 0.0
@@ -185,23 +226,26 @@ def calculate_average(temps: List[Float64]) raises -> Float64:
 
 What changed:
 
-- You add `raises` before the return arrow.
-- You add the empty list check.
-- You raise an `Error` if the list's empty.
+- You added `raises` before the return arrow.
+- You added an empty-list check.
+- You raised an `Error` when the list contained no readings.
 
 ## Handle errors
 
-Now that you have a raising function, return to `main()`. Wrap your code
-with `try-except` for error handling:
+A missing sensor report shouldn't leave the elves wondering what happened.
+Catch the error and print a useful message.
+
+Return to `main()` and wrap the average calculation and classification in
+`try` and `except`:
 
 ```mojo
     try:
         var avg = calculate_average(temps)
         print(t"Average: {round(avg, 2)}°C")
 
-        if avg > 25.0:
+        if avg > -20.0:
             print("Status: Hot week")
-        elif avg > 20.0:
+        elif avg > -25.0:
             print("Status: Comfortable week")
         else:
             print("Status: Cool week")
@@ -209,27 +253,31 @@ with `try-except` for error handling:
         print("Error:", e)
 ```
 
-To test the error, replace `temps` with `List[Float64]()`. It constructs
-an empty list of `Float64` values. Confirm that your app errors with "No
-temperature data". After, revert your code.
+To test the error, replace `temps` with `List[Float64]()`. This constructs
+an empty list of `Float64` values.
+
+Confirm that your program reports `No temperature data`, then restore the
+original readings.
 
 ### Checkpoint
 
-`try`/`except` statements support `else` and `finally` blocks:
+`try` and `except` statements support `else` and `finally` blocks:
 
-- If the `try` block runs without raising an error, control passes to
-  the `else` block, if defined.
-- When included, a `finally` block always runs. It doesn't matter if you
-  caught an error or ran `else` block.
+- If the `try` block completes without raising an error, control passes
+  to the `else` block, when present.
+- A `finally` block always runs, whether the program catches an error or
+  completes the `try` or `else` block.
 
-If you omit the `try`/`except` handling, you must allow `main()` to raise.
-Add `raises` before the colon. When using an empty list, the program
-terminates with an unhandled exception.
+If you omit the `try` and `except` handling, you must allow `main()` to
+raise. Add `raises` before the colon:
 
 ```mojo
 def main() raises:
     # ...
 ```
+
+With an empty list, the program then terminates with an unhandled
+exception.
 
 ## Final code
 
@@ -248,20 +296,20 @@ def calculate_average(temps: List[Float64]) raises -> Float64:
     return total / Float64(count)
 
 def main():
-    print("Temperature Analyzer")
-    var temps: List[Float64] = [20.5, 22.3, 19.8, 25.1]
+    print("North Pole Temperature Analyzer")
+    var temps: List[Float64] = [-20.5, -22.3, -19.8, -25.1]
     print(t"Recorded {len(temps)} temperatures")
 
-    for index, temp in enumerate(temps):  # The index is [0, len(temps))
+    for index, temp in enumerate(temps):
         print(t"  Day {index + 1}: {temp}°C")
 
     try:
         var avg = calculate_average(temps)
-        print(t"Average: {round(avg, 2)}°C")  # Average: 21.92°C
+        print(t"Average: {round(avg, 2)}°C")  # Average: -21.92°C
 
-        if avg > 25.0:
+        if avg > -20.0:
             print("Status: Hot week")
-        elif avg > 20.0:
+        elif avg > -25.0:
             print("Status: Comfortable week")
         else:
             print("Status: Cool week")
@@ -270,6 +318,11 @@ def main():
         print("Error:", e)
 ```
 
+The analyzer can now store sensor readings, inspect them, calculate their
+average, classify the week, and report missing data.
+
+The North Pole has its first working analysis tool.
+
 ## What you touched
 
 Mojo variables, lists, loops, functions, conditionals, and error handling.
@@ -277,24 +330,25 @@ Mojo variables, lists, loops, functions, conditionals, and error handling.
 ## Extras
 
 <details>
-<summary><b>Sidequest</b>: Discover 'mean()'</summary>
+<summary><b>Sidequest</b>: Discover `mean()`</summary>
 
 ### It's dangerous to go alone. Take this function call
 
-Using the raising version of `calculate_average()` lets you try out Mojo's
-built-in `mean()` function. It's an error raising call:
+Now that `calculate_average()` can raise errors, try Mojo's built-in
+`mean()` function. It is also a raising call:
 
 - Add `from std.algorithm import mean` to the start of your file.
-- Replace the math after the empty check with `return mean(temps)`.
+- Replace the manual calculation after the empty check with
+  `return mean(temps)`.
 
 ```mojo
 from std.algorithm import mean
 
 def calculate_average(temps: List[Float64]) raises -> Float64:
-    if len(temps) == 0:  # Empty list of temperatures
+    if len(temps) == 0:
         raise Error("No temperature data")
 
-    return mean(temps)  # raising
+    return mean(temps)
 ```
 
 </details>

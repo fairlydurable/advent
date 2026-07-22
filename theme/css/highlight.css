@@ -1,0 +1,161 @@
+/*
+ * Advent of Mojo syntax highlighting
+ *
+ * Designed for mojolang.js and the palette in advent.css.
+ * Keep this file after mdBook's built-in highlight stylesheet so these
+ * token colors win.
+ */
+
+:root {
+  --mojo-syntax-text: #263544;
+  --mojo-syntax-comment: #6b7886;
+  --mojo-syntax-keyword: #087a58;
+  --mojo-syntax-type: #4057d8;
+  --mojo-syntax-string: #a84f16;
+  --mojo-syntax-number: #9a5a00;
+  --mojo-syntax-literal: #b33a35;
+  --mojo-syntax-function: #1f5f8f;
+  --mojo-syntax-built-in: #376b28;
+  --mojo-syntax-meta: #7a4c00;
+  --mojo-syntax-constant: #8a4d12;
+  --mojo-syntax-punctuation: #526272;
+}
+
+/* mdBook dark themes */
+
+html.coal,
+html.navy,
+html.ayu {
+  --mojo-syntax-text: #d7e0e8;
+  --mojo-syntax-comment: #8796a5;
+  --mojo-syntax-keyword: #4de3b8;
+  --mojo-syntax-type: #8fc7ff;
+  --mojo-syntax-string: #ffc06a;
+  --mojo-syntax-number: #ffd27d;
+  --mojo-syntax-literal: #ff8f88;
+  --mojo-syntax-function: #79c6ff;
+  --mojo-syntax-built-in: #8fe09f;
+  --mojo-syntax-meta: #f0bd63;
+  --mojo-syntax-constant: #ffb36b;
+  --mojo-syntax-punctuation: #aebac6;
+}
+
+/* Base code color */
+
+.hljs {
+  color: var(--mojo-syntax-text);
+  background: transparent;
+}
+
+/* Comments and documentation tags */
+
+.hljs-comment,
+.hljs-quote {
+  color: var(--mojo-syntax-comment);
+  font-style: italic;
+}
+
+.hljs-doctag {
+  color: var(--mojo-syntax-meta);
+  font-weight: 500;
+}
+
+/* Mojo declaration and control-flow words */
+
+.hljs-keyword {
+  color: var(--mojo-syntax-keyword);
+  font-weight: 600;
+}
+
+/* Types, including built-in scalar and container types */
+
+.hljs-type,
+.hljs-title.class_,
+.hljs-class .hljs-title {
+  color: var(--mojo-syntax-type);
+  font-weight: 500;
+}
+
+/* Function declarations */
+
+.hljs-title,
+.hljs-title.function_,
+.hljs-function .hljs-title {
+  color: var(--mojo-syntax-function);
+  font-weight: 600;
+}
+
+/* Standard-library modules and recognized built-ins */
+
+.hljs-built_in,
+.hljs-builtin-name {
+  color: var(--mojo-syntax-built-in);
+}
+
+/* Literals and constants */
+
+.hljs-literal {
+  color: var(--mojo-syntax-literal);
+  font-weight: 500;
+}
+
+.hljs-constant,
+.hljs-symbol {
+  color: var(--mojo-syntax-constant);
+}
+
+/* Strings and numbers */
+
+.hljs-string,
+.hljs-regexp {
+  color: var(--mojo-syntax-string);
+}
+
+.hljs-number {
+  color: var(--mojo-syntax-number);
+}
+
+/* Decorators, imports, and compiler-facing syntax */
+
+.hljs-meta,
+.hljs-meta .hljs-keyword,
+.hljs-meta .hljs-string {
+  color: var(--mojo-syntax-meta);
+}
+
+/* Punctuation emitted explicitly by mojolang.js */
+
+.hljs-punctuation {
+  color: var(--mojo-syntax-punctuation);
+}
+
+/* Reasonable fallbacks for classes Highlight.js may emit */
+
+.hljs-variable,
+.hljs-params,
+.hljs-property,
+.hljs-attr {
+  color: var(--mojo-syntax-text);
+}
+
+.hljs-operator {
+  color: var(--mojo-syntax-punctuation);
+}
+
+.hljs-emphasis {
+  font-style: italic;
+}
+
+.hljs-strong {
+  font-weight: 700;
+}
+
+/* Diff highlighting, useful for explanatory examples */
+
+.hljs-addition {
+  color: var(--mojo-syntax-built-in);
+}
+
+.hljs-deletion {
+  color: var(--mojo-syntax-literal);
+}

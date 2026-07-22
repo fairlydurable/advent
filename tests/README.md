@@ -1,11 +1,1 @@
-# Advent of Code tests
-
-Code examples for Advent of Code
-
-Contents:
-
-- Each `.mojo` file is a standalone Mojo application.
-- The `BUILD.bazel` file defines:
-  - A `mojo_binary` target for each `.mojo` file (using the file name without
-    extension).
-  - A `modular_run_binary_test` target for each binary (with a `_test` suffix).
+These are ad-hoc sanity tests. They are not uniform or complete at this time.

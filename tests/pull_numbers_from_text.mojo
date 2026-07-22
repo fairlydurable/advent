@@ -1,3 +1,8 @@
+# ===----------------------------------------------------------------------=== #
+#
+# This file is Modular Inc proprietary.
+#
+# ===----------------------------------------------------------------------=== #
 def extract_ints(text: String) raises -> List[Int]:
     var nums = List[Int]()
     var cur = String("")

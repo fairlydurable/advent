@@ -1,4 +1,10 @@
+# ===----------------------------------------------------------------------=== #
+#
+# This file is Modular Inc proprietary.
+#
+# ===----------------------------------------------------------------------=== #
 from std.collections import Set
+
 
 def main() raises:
     # each reading's station id, already parsed from the log
@@ -17,14 +23,16 @@ def main() raises:
         reported.add(id)
 
     for station in range(1, 6):
-        print(t"Station {station} reported? "  # TStrings allow concatenation
-                t"{"Yes" if station in reported else "No"}")
+        print(
+            t"Station {station} reported? "
+            t"{\"Yes\" if station in reported else \"No\"}"  # TStrings allow concatenation
+        )
     # Station 1 reported? Yes
     # Station 2 reported? No
     # Station 3 reported? Yes
     # Station 4 reported? No
     # Station 5 reported? Yes
-        
+
     var expected = Set[Int](1, 2, 3, 4, 5)
     var missing = expected - reported
     print(t"silent stations: {missing}")  # {2, 4}
@@ -39,17 +47,40 @@ def main() raises:
         print(t"station {station}, day {day}: {entry.value}")
 
     # Try removing (1, 1) after running the missing days code below
-    var data = [(1, 0), (1, 0), (1, 0), (2, 0), (2, 0), (3, 0),
-                (3, 0), (3, 0), (1, 1), (3, 1), (3, 1), (3, 1),
-                (3, 1), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2),
-                (1, 2), (2, 2), (2, 2), (3, 2), (3, 2), (3, 2),
-                (3, 2)]
+    var data = [
+        (1, 0),
+        (1, 0),
+        (1, 0),
+        (2, 0),
+        (2, 0),
+        (3, 0),
+        (3, 0),
+        (3, 0),
+        (1, 1),
+        (3, 1),
+        (3, 1),
+        (3, 1),
+        (3, 1),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (1, 2),
+        (2, 2),
+        (2, 2),
+        (3, 2),
+        (3, 2),
+        (3, 2),
+        (3, 2),
+    ]
 
     var per_day_set: Set[Tuple[Int, Int]] = {}
     for pair in data:
         per_day_set.add(pair)
 
-    var missing_days = [String(t"Station {station} - Day {day}")
+    var missing_days = [
+        String(t"Station {station} - Day {day}")
         for station in range(1, 4)
         for day in range(3)
         if (station, day) not in per_day_set

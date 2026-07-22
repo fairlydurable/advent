@@ -1,11 +1,45 @@
+# ===----------------------------------------------------------------------=== #
+#
+# This file is Modular Inc proprietary.
+#
+# ===----------------------------------------------------------------------=== #
 def main():
-
     var data = [
-          6,  13,   6,   9,   8,  14,   3,
-          9,  10,  11,  14,  11,  10,   8,
-          9,   9,   6,   6,   8,  14,   6,
-         12,  11,   3,   4,   7,   7,   4,
-         14,   7,   8,   6,   5,   8,   6
+        6,
+        13,
+        6,
+        9,
+        8,
+        14,
+        3,
+        9,
+        10,
+        11,
+        14,
+        11,
+        10,
+        8,
+        9,
+        9,
+        6,
+        6,
+        8,
+        14,
+        6,
+        12,
+        11,
+        3,
+        4,
+        7,
+        7,
+        4,
+        14,
+        7,
+        8,
+        6,
+        5,
+        8,
+        6,
     ]
 
     var rows, cols = 5, 7
@@ -43,20 +77,23 @@ def main():
     var half_count = count / 2  # half of the neighbors (4)
 
     for index in range(len(data)):
-        var row, col = index_to_coord(index)         # fetch the row and column
-        var cooler = 0                       # keeps a running comparison count
+        var row, col = index_to_coord(index)  # fetch the row and column
+        var cooler = 0  # keeps a running comparison count
         var spot = get_coord_data(row=row, col=col)  # the current spot's value
 
         # Check boundaries for safe indexing
-        if not (radius <= row < rows - radius
-            and radius <= col < cols - radius):
+        if not (
+            radius <= row < rows - radius and radius <= col < cols - radius
+        ):
             continue
 
         for dRow in range(row - radius, row + radius + 1):
             for dCol in range(col - radius, col + radius + 1):
-                if dRow == row and dCol == col: continue  # current spot
+                if dRow == row and dCol == col:
+                    continue  # current spot
                 var neighbor = get_coord_data(row=dRow, col=dCol)
-                if neighbor > spot: cooler += 1
+                if neighbor > spot:
+                    cooler += 1
 
         if cooler > half_count:  # each spot has 8 neighbors
             print(t"Cool spot: ({row}, {col})")

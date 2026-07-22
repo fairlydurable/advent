@@ -241,7 +241,7 @@ def main() raises:
     # Station 3 reported? Yes
     # Station 4 reported? No
     # Station 5 reported? Yes
-        
+
     var expected = Set[Int](1, 2, 3, 4, 5)
     var missing = expected - reported
     print(t"silent stations: {missing}")  # {2, 4}

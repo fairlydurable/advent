@@ -1,7 +1,10 @@
 # Work with grids 🔥
 
-Dr. Green's garden isn't doing well. A few warming pads have failed, but
-nobody knows which ones.
+Dr. Green grows fresh vegetables for the entire North Pole in a cozy
+greenhouse tucked behind the workshop. Unfortunately, a few warming pads
+have quietly failed, and the lettuce has started filing formal complaints.
+It's time to find the cold spots before dinner becomes very crunchy and the
+iceberg lettuce lives up to its name.
 
 Fortunately, every square in the garden has a temperature sensor.
 
@@ -26,6 +29,8 @@ arithmetic.
 
 Here's today's puzzle data:
 
+<!-- markdownlint-disable MD013 -->
+
 ```text
  6,  13,   6,   9,   8,  14,   3,
  9,  10,  11,  14,  11,  10,   8,
@@ -33,6 +38,8 @@ Here's today's puzzle data:
 12,  11,   3,   4,   7,   7,   4,
 14,   7,   8,   6,   5,   8,   6
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 ### Create the project file
 
@@ -179,7 +186,7 @@ you'll mark them on the grid so they're easy to see.
 
 Finding the answer is good.
 
-Seeing it is even better. 
+Seeing it is even better.
 
 Follow these four steps to update `write_data()` to mark cool spots with
 `*`, then call it again after the search finishes.
@@ -249,6 +256,8 @@ The failed warming pad is immediately obvious.
 
 Your complete `grid.mojo`:
 
+<!-- markdownlint-disable MD013 -->
+
 ```mojo
 def main():
 
@@ -316,6 +325,8 @@ def main():
 
     write_data()
 ```
+
+<!-- markdownlint-enable MD013 -->
 
 ## What you touched
 

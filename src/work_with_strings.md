@@ -331,6 +331,7 @@ You can tell `strip()` exactly which characters to remove:
 var test = "**🔥Fooxx"
 print(t"'{test.strip("x*🔥")}'")  # 'Foo'
 ```
+
 The trim set matches Unicode codepoints, not bytes.
 
 Without an argument, strip() removes whitespace, including newlines and

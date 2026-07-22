@@ -1,0 +1,407 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap");
+
+:root {
+  --mojo-ember: #ffa01e;
+  --mojo-nebula: #4057d8;
+  --mojo-teal: #087a58;
+  --mojo-plum: #7c3f82;
+
+  --mojo-surface-soft: #eef1f5;
+  --mojo-code-bg: #eef1f5;
+  --mojo-code-border: #c6ced8;
+  --mojo-text-soft: #3f5265;
+
+  --mojo-font-body:
+    "Inter",
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    "Segoe UI",
+    sans-serif;
+
+  --mojo-font-code:
+    "Roboto Mono",
+    "SFMono-Regular",
+    Consolas,
+    monospace;
+}
+
+/* Dark themes */
+
+html.coal,
+html.navy,
+html.ayu {
+  --mojo-ember: #ffb02e;
+  --mojo-nebula: #6fb6ff;
+  --mojo-teal: #4de3b8;
+  --mojo-plum: #d38cff;
+
+  --mojo-surface-soft: #101923;
+  --mojo-code-bg: #101923;
+  --mojo-code-border: #2a3542;
+  --mojo-text-soft: #aab7c4;
+}
+
+/* Typography */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+html,
+body {
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  font-family: var(--mojo-font-body);
+
+  -webkit-font-feature-settings: "salt" off;
+  font-feature-settings: "salt" off;
+  letter-spacing: -0.01em;
+}
+
+.content p,
+.content li {
+  line-height: 1.72;
+}
+
+/* Page title */
+
+.content h1 {
+  margin-top: 0.2em;
+  margin-bottom: 1.6rem;
+  line-height: 1.05;
+}
+
+.content h1 .header {
+  display: inline-block;
+
+  color: #ffa01e !important;
+  color: var(--mojo-ember) !important;
+
+  /* Fallback for browsers without clamp(). */
+  font-size: 4rem;
+  font-size: clamp(3rem, 6vw, 5.25rem);
+
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.95;
+  text-decoration: none !important;
+}
+
+.content h1 .header:hover {
+  color: #4057d8 !important;
+  color: var(--mojo-nebula) !important;
+}
+
+/* Major section headings */
+
+.content h2 {
+  margin-top: 4rem;
+  margin-bottom: 1.4rem;
+  padding-bottom: 0.35rem;
+
+  border-bottom: 1px solid #c6ced8;
+  border-bottom-color: var(--mojo-code-border);
+  letter-spacing: -0.03em;
+}
+
+.content h2 .header {
+  color: inherit !important;
+  color: var(--fg) !important;
+
+  /* Fallback for browsers without clamp(). */
+  font-size: 2.3rem;
+  font-size: clamp(2rem, 3vw, 2.6rem);
+
+  font-weight: 600;
+  line-height: 1.08;
+  text-decoration: none !important;
+}
+
+.content h2 .header:hover {
+  color: #ffa01e !important;
+  color: var(--mojo-ember) !important;
+}
+
+/* Subsection headings */
+
+.content h3 {
+  margin-top: 2.8rem;
+  margin-bottom: 0.9rem;
+}
+
+.content h3 .header {
+  color: inherit !important;
+  color: var(--fg) !important;
+  font-size: 2rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  text-decoration: none !important;
+}
+
+.content h3 .header:hover {
+  color: #4057d8 !important;
+  color: var(--mojo-nebula) !important;
+}
+
+.content h4 .header {
+  color: inherit !important;
+  color: var(--fg) !important;
+  text-decoration: none;
+}
+
+.content h4 .header:hover {
+  color: #ffa01e !important;
+  color: var(--mojo-ember) !important;
+}
+
+/* Links */
+
+.content a {
+  color: #ffa01e;
+  color: var(--mojo-ember);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.16em;
+}
+
+.content a:hover {
+  color: #4057d8;
+  color: var(--mojo-nebula);
+}
+
+/* Strong text */
+
+.content strong,
+.content b {
+  color: inherit;
+  color: var(--fg);
+  font-weight: 700;
+}
+
+.content p strong,
+.content li strong {
+  letter-spacing: -0.01em;
+}
+
+.content strong code {
+  color: #ffa01e;
+  color: var(--mojo-ember);
+}
+
+/* Inline code */
+
+.content :not(pre) > code {
+  padding: 0.08em 0.28em;
+
+  color: #ffa01e;
+  color: var(--mojo-ember);
+  background: #eef1f5;
+  background: var(--mojo-code-bg);
+  border: 1px solid #c6ced8;
+  border-color: var(--mojo-code-border);
+  border-radius: 2px;
+
+  font-family: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
+  font-family: var(--mojo-font-code);
+  font-size: 0.9em;
+}
+
+/* Code blocks */
+
+pre {
+  padding: 1rem;
+
+  background: #eef1f5 !important;
+  background: var(--mojo-code-bg) !important;
+  border: 1px solid #c6ced8;
+  border-color: var(--mojo-code-border);
+  border-radius: 2px;
+}
+
+pre code {
+  font-family: "Roboto Mono", "SFMono-Regular", Consolas, monospace;
+  font-family: var(--mojo-font-code);
+  font-size: 0.92em;
+  line-height: 1.6;
+}
+
+/* Callouts */
+
+.content blockquote,
+.mojo-callout {
+  margin: 1.5rem 0;
+  padding: 0.9rem 1rem;
+
+  background: #eef1f5;
+  background: var(--mojo-surface-soft);
+  border-left: 2px solid #ffa01e;
+  border-left-color: var(--mojo-ember);
+}
+
+/* Advent divider */
+
+.mojo-divider {
+  margin: 3rem auto;
+
+  color: #087a58;
+  color: var(--mojo-nebula);
+  letter-spacing: 0.12em;
+  text-align: center;
+}
+
+.mojo-divider strong {
+  color: #ffa01e;
+  color: var(--mojo-ember);
+}
+
+/* Illustrated chapter introduction */
+
+.intro {
+  display: -webkit-box;
+  display: -webkit-flex;
+  display: flex;
+
+  -webkit-box-align: start;
+  -webkit-align-items: flex-start;
+  align-items: flex-start;
+
+  margin-bottom: 2.5rem;
+}
+
+/*
+ * Fallback spacing for older Safari versions that support flexbox but not
+ * flex gap. Browsers that support gap remove this margin below.
+ */
+.intro > * + * {
+  margin-left: 2rem;
+}
+
+@supports (gap: 1rem) {
+  .intro {
+    gap: 2rem;
+  }
+
+  .intro > * + * {
+    margin-left: 0;
+  }
+}
+
+.intro-text {
+  -webkit-box-flex: 1;
+  -webkit-flex: 1 1 0;
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.intro-image {
+  display: block;
+
+  -webkit-box-flex: 0;
+  -webkit-flex: 0 0 42%;
+  flex: 0 0 42%;
+
+  max-width: 340px;
+}
+
+.intro-image img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Stack the introduction on narrow screens */
+
+@media (max-width: 700px) {
+  .intro {
+    display: block;
+  }
+
+  .intro > * + * {
+    margin-left: 0;
+  }
+
+  .intro-image {
+    width: 100%;
+    max-width: 420px;
+    margin: 1.5rem auto 0;
+  }
+}
+
+/* Book cover */
+
+.mojo-cover {
+  display: block;
+  width: auto;
+  max-width: 100%;
+
+  /* vh is the fallback; newer browsers replace it with dvh. */
+  max-height: 70vh;
+  max-height: 70dvh;
+
+  height: auto;
+  margin: 0 auto 2rem;
+}
+
+/* Sidebar typography */
+
+.sidebar {
+  font-size: 1.3rem;
+  line-height: 1.6;
+}
+
+/* Sidebar */
+
+.sidebar {
+  border-right-color: var(--mojo-code-border);
+}
+
+.sidebar .chapter li a {
+  color: var(--fg);
+}
+
+.sidebar .chapter li a:hover {
+  color: #c86a00;
+}
+
+.sidebar .chapter li a.active {
+  margin-left: -0.75rem;
+  padding-left: calc(0.75rem - 3px);
+
+  color: var(--mojo-nebula);
+  border-left: 3px solid var(--mojo-nebula);
+  font-weight: 600;
+}
+
+.sidebar .chapter li.part-title {
+  color: var(--mojo-text-soft);
+}
+
+.sidebar .chapter li a .toggle {
+  color: #c86a00;
+}
+
+/* Dark-theme sidebar */
+
+html.coal .sidebar .chapter li a:hover,
+html.navy .sidebar .chapter li a:hover,
+html.ayu .sidebar .chapter li a:hover {
+  color: var(--mojo-ember);
+}
+
+.sidebar .chapter li a.active {
+  margin-left: -0.75rem;
+  padding-left: calc(0.75rem - 3px);
+
+  color: var(--mojo-nebula);
+  border-left: 3px solid var(--mojo-nebula);
+  font-weight: 600;
+}
+
+html.coal .sidebar .chapter li a .toggle,
+html.navy .sidebar .chapter li a .toggle,
+html.ayu .sidebar .chapter li a .toggle {
+  color: var(--mojo-ember);
+}

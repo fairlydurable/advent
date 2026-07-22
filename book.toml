@@ -4,4 +4,10 @@ authors = ["Erica Sadun"]
 language = "en"
 
 [output.html]
-additional-css = ["theme/advent.css"]
+additional-css = [
+    "theme/css/advent.css",
+    "theme/css/highlight.css",
+]
+additional-js = [
+    "theme/mojolang.js",
+]
