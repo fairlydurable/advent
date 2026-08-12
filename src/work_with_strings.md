@@ -1,13 +1,17 @@
 # Work with strings 🔥
 
+<!-- markdownlint-disable MD024 -->
+
 Advent of Code inputs arrive as text, but the answers are hiding inside:
 numbers, labels, separators, commands, coordinates, and clues.
 
 Before you can solve the puzzle, you have to take the input apart.
 
-This page gives you one deliberately messy line and walks through the string
+This page picks up the sensor log from
+[Work with files](./work_with_files.md) and walks through the string
 operations you'll reach for again and again: trim it, search it, slice it,
-split it, and reshape it.
+split it, and reshape it. The first line of that log is deliberately messy,
+so you have real whitespace and casing problems to clean up as you go.
 
 ## It's plain ASCII
 
@@ -20,24 +24,24 @@ into useful pieces.
 
 ## Build a string
 
-Today's input starts with one weather report. Create `string_tour.mojo`,
-add this code, and run it.
-
-The spaces around the main text are intentional:
+Create `string_tour.mojo`, and grab the first entry from the same sensor log
+you read in [Work with files](./work_with_files.md):
 
 ```mojo
-def main():
-    var string: String = "  Day 1: 20.5C, Partly Cloudy  "
-    print(t"string: '{string}'")
-    # single quotes make surrounding whitespace easy to spot
+{{#include ../snippets/work_with_strings/string_tour.mojo:build_string}}
 ```
 
-Each string is mutable, owns its data, and provides rich manipulation APIs.
+Note that `splitlines()[0]` indexes the zeroth element of the text split by
+lines, so `var string` gets the first line of the text file. The logging script
+isn't perfectly tidy. The leading and trailing spaces on that first line will
+need to be cleaned up.
 
 ### Checkpoint
 
-Strings are Mojo's primary text type. They store UTF-8 encoded text and
-provide a safe, ergonomic interface for string manipulation.
+- Strings are Mojo's primary text type. They store UTF-8 encoded text and
+  provide a safe, ergonomic interface for string manipulation.
+- Each string is mutable, owns its data, and provides rich manipulation APIs.
+- Reading the log with `read_text()` can fail, so `main()` needs `raises`.
 
 ## Measure the input
 
@@ -48,14 +52,14 @@ reversing and suffixes.
 For ASCII input only, `byte_length()` gives you a string length:
 
 ```mojo
-var length = string.byte_length()
+{{#include ../snippets/work_with_strings/string_tour.mojo:byte_length}}
 ```
 
 `TStrings` (prefixed with the letter `t`) let you interpolate values
 into a string template and print them:
 
 ```mojo
-print(t"{string} length: {length}")  # 31
+{{#include ../snippets/work_with_strings/string_tour.mojo:tstring_print}}
 ```
 
 ### Checkpoint
@@ -65,15 +69,6 @@ print(t"{string} length: {length}")  # 31
 - Convert a `TString` to `String` when you need to store or manipulate
   the resulting text as a string, or return a string from a function or
   method.
-
-Try this code with and without the cast:
-
-```mojo
-# TString construction with interpolation
-var t = t"5 plus 5 is {5 + 5}"
-var math = "Correct: " + String(t)
-print(math) # Correct: 5 plus 5 is 10
-```
 
 ## String iteration
 
@@ -88,10 +83,7 @@ This example uses a Mojo list comprehension to collect the individual
 characters and convert each slice to a single-quoted string:
 
 ```mojo
-print([String(t"'{slice}'") for slice in string.codepoint_slices()])
-# [' ', ' ', 'D', 'a', 'y', ' ', '1', ':', ' ', '2', '0', '.', '5',
-#  'C', ',', ' ', 'P', 'a', 'r', 't', 'l', 'y', ' ', 'C', 'l', 'o',
-#  'u', 'd', 'y', ' ', ' ']
+{{#include ../snippets/work_with_strings/string_tour.mojo:iterate_chars}}
 ```
 
 ### Checkpoint
@@ -117,31 +109,54 @@ separator you want to place between them.
 To rebuild the original line, use an empty separator:
 
 ```mojo
-var joined = "".join([slice for slice in string.codepoint_slices()])
-print(t"'{joined}'")  # '  Day 1: 20.5C, Partly Cloudy  '
+{{#include ../snippets/work_with_strings/string_tour.mojo:join_all}}
 ```
 
 To rebuild the original line without spaces, filter them out:
 
 ```mojo
-joined = "".join([
-    slice for slice in string.codepoint_slices()
-    if " " not in slice])
-print(t"'{joined}'")  #  'Day1:20.5C,PartlyCloudy'
+{{#include ../snippets/work_with_strings/string_tour.mojo:join_filtered}}
 ```
 
 ### Checkpoint
 
 - `join()` supports any list of `Writable` values.
 - Use an empty separator to concatenate values: `"".join(parts)`.
-- A non-empty separator appears only between elements.
+- A non-empty separator appears only between elements, not after the last
+  element.
 
 For example:
 
 ```mojo
-var hello: String = "Hello"
-joined = ", ".join([slice for slice in hello.codepoint_slices()])
-print(t"'{joined}'")  # 'H, e, l, l, o'
+{{#include ../snippets/work_with_strings/string_tour.mojo:join_hello}}
+```
+
+## Clean up the edges
+
+Puzzle input often comes with whitespace you don't want: spaces around
+fields, indentation, or trailing newlines. Use `strip()` to remove
+whitespace from both ends.
+
+Clean up your reading line:
+
+```mojo
+{{#include ../snippets/work_with_strings/string_tour.mojo:strip_edges}}
+```
+
+The string length drops from 32 to 28 as the white space is trimmed. From
+here on, the examples work on `cleaned` instead of the raw `string`.
+
+### Checkpoint
+
+- `strip()` returns a `StringSlice` without leading and trailing whitespace.
+- Use `lstrip()` to clean the left edge only, and `rstrip()` for the right.
+
+### Try this
+
+You can tell `strip()` exactly which characters to remove:
+
+```mojo
+{{#include ../snippets/work_with_strings/string_tour.mojo:strip_chars}}
 ```
 
 ## Reverse a string
@@ -153,30 +168,21 @@ For ASCII input, you can reverse the bytes by walking backward from the end
 of the string:
 
 ```mojo
-var s: String = ""
-
-# construct and reverse the non-inclusive range
-for index in reversed(range(length)):
-    s = s + String(string[byte=index])
-print(t"Reversed bytes: '{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
+{{#include ../snippets/work_with_strings/string_tour.mojo:reverse_bytes}}
 ```
 
 Strings also provide a reversed slice iterator:
 
 ```mojo
-# use the reversed iterator
-s = ""
-for slice in string.codepoint_slices_reversed():
-    s += String(slice)
-print(t"'{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
+{{#include ../snippets/work_with_strings/string_tour.mojo:reverse_iterator}}
 ```
 
 ### Checkpoint
 
 - For ASCII sources, reversing bytes and reversing codepoints produces the
   same result.
-- `reversed(range(length))` walks the byte indices from the end to the
-  beginning.
+- `reversed(range(cleaned.byte_length()))` walks the byte indices from the
+  end to the beginning.
 - `codepoint_slices_reversed()` gives you an iterator that walks Unicode
   codepoints in reverse without calling `reversed()`.
 
@@ -209,10 +215,7 @@ Slices let you grab a prefix, suffix, or section from the middle:
 Try all three on the puzzle input:
 
 ```mojo
-# O(1) byte slicing to a view
-print(t"byte prefix:     '{string[byte=:5]}'")           # '  Day'
-print(t"byte suffix:     '{string[byte=length - 5:]}'")  # 'udy  '
-print(t"byte substring:  '{string[byte=2:10]}'")         # 'Day 1: 2'
+{{#include ../snippets/work_with_strings/string_tour.mojo:byte_slicing}}
 ```
 
 ### Checkpoint
@@ -233,16 +236,7 @@ Three tools cover these common searches: `in`, `find()`, and
 Try them on your input:
 
 ```mojo
-# Contains
-print(t"contains 'Day':       {'Day' in string}")  # True
-
-# Position
-print(t"position of ':':      {string.find(':')}")  # 7
-print(t"position of '!':      {string.find('!')}")  # -1, not found
-
-# Start and end
-print(t"starts with '  Day':  {string.startswith('  Day')}")   # True
-print(t"ends with 'Cloudy  ': {string.endswith('Cloudy  ')}")  # True
+{{#include ../snippets/work_with_strings/string_tour.mojo:basic_search}}
 ```
 
 Run it. You should see `True`, `7`, `-1`, `True`, `True`.
@@ -262,19 +256,13 @@ There's a trap hiding in `find()`. A missing value returns `-1`, and `-1`
 is truthy:
 
 ```mojo
-if string.find('!'):
-    print("-1 is truthy")  # This prints
-else:
-    print("You'd expect to be here, but you're not")
+{{#include ../snippets/work_with_strings/string_tour.mojo:find_truthy_trap}}
 ```
 
 That's why you shouldn't use `find()` as a containment test. Use `in`:
 
 ```mojo
-if '!' in string:
-    print("Found")
-else:
-    print("Not found")  # This prints
+{{#include ../snippets/work_with_strings/string_tour.mojo:in_correct_check}}
 ```
 
 `"x" in s` returns a `Bool`. Reach for `find()` when you need the
@@ -286,10 +274,7 @@ You just saw that integers have truthiness. Strings do too. An empty string
 is falsy and a non-empty string is truthy:
 
 ```mojo
-if "":
-    print("Won't be printed")
-elif "🔥":
-    print("This is printed")
+{{#include ../snippets/work_with_strings/string_tour.mojo:empty_truthiness}}
 ```
 
 ### Checkpoint
@@ -297,50 +282,10 @@ elif "🔥":
 Use string truthiness when you care whether text is empty:
 
 ```mojo
-if text:
-    # There's something to process.
+{{#include ../snippets/work_with_strings/string_tour.mojo:process_text}}
 ```
 
 Use `in` when you care whether specific text appears.
-
-## Clean up the edges
-
-Puzzle input often comes with whitespace you don't want: spaces around
-fields, indentation, or trailing newlines. Use `strip()` to remove
-whitespace from both ends.
-
-Clean up your reading line:
-
-```mojo
-var cleaned = string.strip()
-print(t"cleaned: '{cleaned}', bytes: {cleaned.byte_length()}")
-```
-
-The string length drops from 31 to 27 as the white space is trimmed.
-
-### Checkpoint
-
-- `strip()` returns a `StringSlice` without leading and trailing whitespace.
-- Use `lstrip()` to clean the left edge only, and `rstrip()` for the right.
-
-### Try this
-
-You can tell `strip()` exactly which characters to remove:
-
-```mojo
-var test = "**🔥Fooxx"
-print(t"'{test.strip("x*🔥")}'")  # 'Foo'
-```
-
-The trim set matches Unicode codepoints, not bytes.
-
-Without an argument, strip() removes whitespace, including newlines and
-tabs:
-
-```mojo
-test = "\n\n\t Hi\n \n"
-print(t"'{test.strip()}'")  # 'Hi'
-```
 
 ## Replace what you know
 
@@ -351,13 +296,10 @@ substring with another.
 Standardize the weather description:
 
 ```mojo
-var standardized = cleaned.replace("Partly Cloudy", "Cloudy")
-var no_units = standardized.replace("C", "")
-print(standardized)
-print(no_units)  # loudy! Maybe not a great idea
+{{#include ../snippets/work_with_strings/string_tour.mojo:replace_text}}
 ```
 
-Run it. You should see `Day 1: 20.5C, Cloudy` and `Day 1: 20.5, loudy`.
+Run it. You should see `Day 1: -20.5C, Cloudy` and `Day 1: -20.5, loudy`.
 
 Oops. You removed the C from Cloudy, too.
 
@@ -378,12 +320,10 @@ use `split(sep)` to break it into fields.
 Split on the comma and space:
 
 ```mojo
-var parts = cleaned.split(", ")
-print(t"split on ', ': {parts}") # [Day 1: 20.5C, Partly Cloudy]
-print(t"count: {len(parts)}")  # 2
+{{#include ../snippets/work_with_strings/string_tour.mojo:split_fields}}
 ```
 
-Now you can work with "Day 1: 20.5C" and "Partly Cloudy" separately.
+Now you can work with "Day 1: -20.5C" and "Partly Cloudy" separately.
 
 ### Checkpoint
 
@@ -401,15 +341,14 @@ You already split the weather description into `parts[1]`. Try both
 directions:
 
 ```mojo
-print(parts[1].lower())  # partly cloudy
-print(parts[1].upper())  # PARTLY CLOUDY
+{{#include ../snippets/work_with_strings/string_tour.mojo:case_conversion}}
 ```
 
 Now you can make a case-insensitive containment check by normalizing before
 you search:
 
 ```mojo
-print(t"'cloudy' matches: {'cloudy' in cleaned.lower()}")  # True
+{{#include ../snippets/work_with_strings/string_tour.mojo:case_insensitive_match}}
 ```
 
 ### Checkpoint
@@ -421,121 +360,13 @@ print(t"'cloudy' matches: {'cloudy' in cleaned.lower()}")  # True
 
 ## Final code
 
-Your complete `string_tour.mojo`, including checkpoint and other material.
+Your complete `string_tour.mojo`:
 
 ```mojo
-def main():
-    print("STRING ASSIGNMENT")
-    var string: String = "  Day 1: 20.5C, Partly Cloudy  "
-    print(t"string: '{string}'")
-
-    print("\nTSTRING CHECKPOINT")
-    # TString construction with interpolation
-    var t = t"5 plus 5 is {5 + 5}"
-    var math = "Correct: " + String(t)
-    print(math)  # Correct: 5 plus 5 is 10
-
-    print("\nSTRING LENGTH")
-    var length = string.byte_length()
-    print(t"{string} length: {length}")  # 31
-
-    print("\nSTRING ITERATION")
-    print([String(t"'{slice}'") for slice in string.codepoint_slices()])
-    # [' ', ' ', 'D', 'a', 'y', ' ', '1', ':', ' ', '2', '0', '.', '5',
-    #  'C', ',', ' ', 'P', 'a', 'r', 't', 'l', 'y', ' ', 'C', 'l', 'o',
-    #  'u', 'd', 'y', ' ', ' ']
-
-    print("\nJOINING STRING SLICES")
-    var joined = "".join([slice for slice in string.codepoint_slices()])
-    print(t"'{joined}'")  #  '  Day 1: 20.5C, Partly Cloudy  '
-
-    joined = "".join([
-        slice for slice in string.codepoint_slices()
-        if " " not in slice])
-    print(t"'{joined}'")  #  'Day1:20.5C,PartlyCloudy'
-
-    print("\nJOINING CHECKPOINT")
-    var hello: String = "Hello"
-    joined = ", ".join([slice for slice in hello.codepoint_slices()])
-    print(t"'{joined}'")  # 'H, e, l, l, o'
-
-    print("\nSTRING REVERSAL")
-    var s: String = ""
-
-    # construct and reverse the non-inclusive range
-    for index in reversed(range(length)):
-        s = s + String(string[byte=index])
-    print(t"Reversed bytes: '{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
-
-    # use the reversed iterator
-    s = ""
-    for slice in string.codepoint_slices_reversed():
-        s += String(slice)
-    print(t"'{s}'")  # '  yduolC yltraP ,C5.02 :1 yaD '
-
-    print("\nSTRING INDEXING")
-    print(t"byte prefix:     '{string[byte=:5]}'")  # '  Day'
-    print(t"byte suffix:     '{string[byte=length - 5:]}'")  # 'udy '
-    print(t"byte substring:  '{string[byte=2:10]}'")  # 'Day 1: 2'
-
-    print("\nSEARCH AND CHECK")
-    # Contains
-    print(t"contains 'Day':       {'Day' in string}")  # True
-
-    # Position
-    print(t"position of ':':      {string.find(':')}")  # 7
-    print(t"position of '!':      {string.find('!')}")  # -1, not found
-
-    # Start and end
-    print(t"starts with '  Day':  {string.startswith('  Day')}")  # True
-    print(t"ends with 'Cloudy  ': {string.endswith('Cloudy  ')}")  # True
-
-    print("\nTESTING SEARCHES")
-    if string.find("!"):
-        print("-1 is truthy")  # This prints
-    else:
-        print("You'd expect to be here, but you're not")
-
-    if "!" in string:
-        print("Found")
-    else:
-        print("Not found")  # This prints
-
-    print("\nSTRING TRUTHINESS")
-    if "":
-        print("Won't be printed")
-    elif "🔥":
-        print("This is printed")
-
-    print("\nTRIMMING STRINGS")
-    var cleaned = string.strip()
-    print(t"cleaned: '{cleaned}', bytes: {cleaned.byte_length()}")
-
-    print("\nTRIMMING TRY THIS")
-    var test = "**🔥Fooxx"
-    print(t"'{test.strip("x*🔥")}'")  # 'Foo'
-
-    test = "\n\n\t Hi\n \n"
-    print(t"'{test.strip()}'")  # 'Hi'
-
-    print("\nSUBSTITUTIONS")
-    var standardized = cleaned.replace("Partly Cloudy", "Cloudy")
-    var no_units = standardized.replace("C", "")
-    print(standardized)
-    print(no_units)  # loudy! Maybe not a great idea
-
-    print("\nSPLITTING STRINGS")
-    var parts = cleaned.split(", ")
-    print(t"split on ', ': {parts}")  # [Day 1: 20.5C, Partly Cloudy]
-    print(t"count: {len(parts)}")  # 2
-
-    print("\nCHANGING CASE")
-    print(parts[1].lower())  # partly cloudy
-    print(parts[1].upper())  # PARTLY CLOUDY
-    print(t"'cloudy' matches: {'cloudy' in cleaned.lower()}")  # True
+{{#include ../snippets/work_with_strings/string_tour.mojo:final}}
 ```
 
-## What you touched
+## Topics covered
 
 String lengths, bytes vs codepoints, indexing, slicing, content operators,
 trimming, replacement, splits, casing, and join.
@@ -561,3 +392,5 @@ the slices to `String` to use them with string construction.
 `s.count(sub)` returns how many non-overlapping copies of `sub` appear
 in `s`. Pair it with `find` and `replace` for full
 search-and-substitute work.
+
+<!-- markdownlint-enable MD024 -->

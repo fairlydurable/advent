@@ -1,31 +1,34 @@
 # Mojo basics 🔥
 
+<!-- markdownlint-disable MD024 -->
+
 <div class="intro">
   <div class="intro-text">
 
-Advent of Code drops a fresh puzzle every midnight in December. Many
-puzzles start with the same basic work: grab some data, loop over it, make
-decisions, and survive bad input.
+Advent of Code is an annual series of programming puzzles released every
+December. Many puzzles share a common format: grab some data, loop over it,
+evaluate a pattern, and compute the output. This example challenge follows the
+same steps. The toolkit demonstrated to solve this challenge will help you hit
+the ground running on any Advent of Code puzzle you pick up.
 
 At the North Pole, a set of workshop sensors has recorded one week of
 temperature readings. Before anyone can spot problems in the heating
 system, they need a program that can inspect the data.
 
-You'll build that program here, creating the basic toolkit you'll use
-throughout the workbook.
-
   </div>
 
-  <picture class="intro-image">
-    <source
-      srcset="img/temperatures-dark.png"
-      media="(prefers-color-scheme: dark)"
-    >
+  <div class="intro-image">
     <img
-      src="img/temperatures-bright.png"
+      class="intro-image-light"
+      src="img/temperatures-bright.jpg"
       alt="Mojo inspecting a North Pole temperature monitor."
     >
-  </picture>
+    <img
+      class="intro-image-dark"
+      src="img/temperatures-dark.jpg"
+      alt="Mojo inspecting a North Pole temperature monitor."
+    >
+  </div>
 </div>
 
 ## Hello Mojo
@@ -35,8 +38,7 @@ Create `analyzer.mojo` in your favorite IDE or editor.
 Start with a message that identifies your new tool:
 
 ```mojo
-def main():
-    print("North Pole Temperature Analyzer")
+{{#include ../snippets/mojo_basics/analyzer.mojo:hello}}
 ```
 
 Run it:
@@ -58,45 +60,13 @@ Store them in a list so your analyzer can work with them.
 Update your file:
 
 ```mojo
-def main():
-    print("North Pole Temperature Analyzer")
-
-    # Square brackets tell Mojo the `List` type at compile time
-    var temps: List[Float64] = [-20.5, -22.3, -19.8, -25.1]
-
-    print(t"Recorded {len(temps)} temperatures")  # TStrings are templates
+{{#include ../snippets/mojo_basics/analyzer.mojo:list}}
 ```
 
 Mojo's `TString` adds string interpolation, building a string template with
-braces. Mojo replaces the braced expressions with their values.
-
-### Try this
-
-A `TString` is a template, not a `String`. Its braces can contain
-expressions, including function calls, arithmetic, and values, not just
-variable names.
-
-Open a throwaway file, then compile and run this example to see expressions
-in action:
-
-```mojo
-from std.random import seed, random_si64
-
-# Int is your machine-sized integer. Int64 has a fixed width.
-# Normally they're the same, but on older hardware they may differ.
-def function_returning_random_number() -> Int64:
-    return random_si64(1, 10)
-
-def function_returning_string() -> String:
-    var t_string = t"one plus one is {1 + 1}"  # Set up TString
-    return String(t_string)                    # Explicit cast
-
-def main():
-    seed()  # Seeds the random number generator
-    var string: String = function_returning_string()     # Assignment works
-    print(string + "!")        # Strings can be added, "one plus one is 2!"
-    print(t"{function_returning_random_number()}")    # A number in [1, 10]
-```
+braces. Mojo replaces the braced expressions with their values. `TString`
+braces can contain expressions, including function calls, arithmetic,
+and values, not just variable names.
 
 ## Loops
 
@@ -106,18 +76,13 @@ the sensors recorded.
 Add this code to `main()` under the existing print statement:
 
 ```mojo
-def main():
-    # ... existing code ...
-
-    for index in range(len(temps)):  # The range is [0, len(temps))
-        print(t"  Day {index + 1}: {temps[index]}°C")
+{{#include ../snippets/mojo_basics/analyzer.mojo:for_in}}
 ```
 
 Improve readability, and remove the call to `len()`, with enumeration:
 
 ```mojo
-for index, temp in enumerate(temps):
-    print(t"  Day {index + 1}: {temp}°C")
+{{#include ../snippets/mojo_basics/analyzer.mojo:enumerate}}
 ```
 
 ### Checkpoint
@@ -136,12 +101,7 @@ A particularly Mojo addition is the loop `else` clause. It runs when a
 loop finishes normally. If you `break`, the `else` block doesn't run:
 
 ```mojo
-def main():
-    for _ in range(5):
-        print("Loop iteration")
-        # break  # Uncomment to break and bypass `else:`
-    else:
-        print("Loop completed without break.")
+{{#include ../snippets/mojo_basics/analyzer.mojo:for_else}}
 ```
 
 ## Functions
@@ -152,23 +112,13 @@ in a function so the analyzer can reuse it.
 Add this function above `main()`:
 
 ```mojo
-def calculate_average(temps: List[Float64]) -> Float64:
-    var total: Float64 = 0.0
-    var count: Int = 0
-    for temp in temps:  # Iterate over collection values
-        total += temp
-        count += 1
-    return total / Float64(count)
-
-def main():
-    # ... existing code ...
+{{#include ../snippets/mojo_basics/calculate_average.mojo:calc_avg}}
 ```
 
 Add this code to the end of `main()` to call the function:
 
 ```mojo
-    var avg = calculate_average(temps)
-    print(t"Average: {round(avg, 2)}°C")  # Average: -21.92°C
+{{#include ../snippets/mojo_basics/calculate_average.mojo:call_avg}}
 ```
 
 ### Checkpoint
@@ -189,12 +139,7 @@ quickly see whether the workshop was cool, comfortable, or hot.
 Add this code to the end of `main()`:
 
 ```mojo
-    if avg > -20.0:
-        print("Status: Hot week")
-    elif avg > -25.0:
-        print("Status: Comfortable week")
-    else:
-        print("Status: Cool week")
+{{#include ../snippets/mojo_basics/calculate_average.mojo:classify}}
 ```
 
 ### Checkpoint
@@ -212,16 +157,7 @@ notice instead of trying to calculate an average from an empty list.
 Update `calculate_average()` so the function can raise an error:
 
 ```mojo
-def calculate_average(temps: List[Float64]) raises -> Float64:
-    if len(temps) == 0:
-        raise Error("No temperature data")
-
-    var total: Float64 = 0.0
-    var count: Int = 0
-    for temp in temps:
-        total += temp
-        count += 1
-    return total / Float64(count)
+{{#include ../snippets/mojo_basics/error_handling.mojo:raises_check}}
 ```
 
 What changed:
@@ -239,18 +175,7 @@ Return to `main()` and wrap the average calculation and classification in
 `try` and `except`:
 
 ```mojo
-    try:
-        var avg = calculate_average(temps)
-        print(t"Average: {round(avg, 2)}°C")
-
-        if avg > -20.0:
-            print("Status: Hot week")
-        elif avg > -25.0:
-            print("Status: Comfortable week")
-        else:
-            print("Status: Cool week")
-    except e:
-        print("Error:", e)
+{{#include ../snippets/mojo_basics/error_handling.mojo:handle_errors}}
 ```
 
 To test the error, replace `temps` with `List[Float64]()`. This constructs
@@ -272,8 +197,7 @@ If you omit the `try` and `except` handling, you must allow `main()` to
 raise. Add `raises` before the colon:
 
 ```mojo
-def main() raises:
-    # ...
+{{#include ../snippets/mojo_basics/mean.mojo:main_raises}}
 ```
 
 With an empty list, the program then terminates with an unhandled
@@ -284,38 +208,7 @@ exception.
 Your complete `analyzer.mojo`:
 
 ```mojo
-def calculate_average(temps: List[Float64]) raises -> Float64:
-    if len(temps) == 0:
-        raise Error("No temperature data")
-
-    var total: Float64 = 0.0
-    var count: Int = 0
-    for temp in temps:
-        total += temp
-        count += 1
-    return total / Float64(count)
-
-def main():
-    print("North Pole Temperature Analyzer")
-    var temps: List[Float64] = [-20.5, -22.3, -19.8, -25.1]
-    print(t"Recorded {len(temps)} temperatures")
-
-    for index, temp in enumerate(temps):
-        print(t"  Day {index + 1}: {temp}°C")
-
-    try:
-        var avg = calculate_average(temps)
-        print(t"Average: {round(avg, 2)}°C")  # Average: -21.92°C
-
-        if avg > -20.0:
-            print("Status: Hot week")
-        elif avg > -25.0:
-            print("Status: Comfortable week")
-        else:
-            print("Status: Cool week")
-
-    except e:
-        print("Error:", e)
+{{#include ../snippets/mojo_basics/error_handling.mojo:final}}
 ```
 
 The analyzer can now store sensor readings, inspect them, calculate their
@@ -323,7 +216,7 @@ average, classify the week, and report missing data.
 
 The North Pole has its first working analysis tool.
 
-## What you touched
+## Topics covered
 
 Mojo variables, lists, loops, functions, conditionals, and error handling.
 
@@ -332,23 +225,17 @@ Mojo variables, lists, loops, functions, conditionals, and error handling.
 <details>
 <summary><b>Sidequest</b>: Discover `mean()`</summary>
 
-### It's dangerous to go alone. Take this function call
-
 Now that `calculate_average()` can raise errors, try Mojo's built-in
 `mean()` function. It is also a raising call:
 
-- Add `from std.algorithm import mean` to the start of your file.
+- Add `from max.algorithm import mean` to the start of your file.
 - Replace the manual calculation after the empty check with
   `return mean(temps)`.
 
 ```mojo
-from std.algorithm import mean
-
-def calculate_average(temps: List[Float64]) raises -> Float64:
-    if len(temps) == 0:
-        raise Error("No temperature data")
-
-    return mean(temps)
+{{#include ../snippets/mojo_basics/mean.mojo:snippet}}
 ```
 
 </details>
+
+<!-- markdownlint-enable MD024 -->

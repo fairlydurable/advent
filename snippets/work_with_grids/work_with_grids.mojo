@@ -1,61 +1,50 @@
 # ===----------------------------------------------------------------------=== #
+# Copyright (c) 2026, Modular Inc. All rights reserved.
 #
-# This file is Modular Inc proprietary.
+# Licensed under the Apache License v2.0 with LLVM Exceptions:
+# https://llvm.org/LICENSE.txt
 #
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 # ===----------------------------------------------------------------------=== #
-def main():
-    var data = [
-        6,
-        13,
-        6,
-        9,
-        8,
-        14,
-        3,
-        9,
-        10,
-        11,
-        14,
-        11,
-        10,
-        8,
-        9,
-        9,
-        6,
-        6,
-        8,
-        14,
-        6,
-        12,
-        11,
-        3,
-        4,
-        7,
-        7,
-        4,
-        14,
-        7,
-        8,
-        6,
-        5,
-        8,
-        6,
-    ]
+# ANCHOR: final
+from std.pathlib import Path
 
-    var rows, cols = 5, 7
 
-    # Convert index from linear to row/col
+def main() raises:
+    # ANCHOR: data_setup
+    var log = Path("src/downloads/grid_temps.txt")
+    var lines = log.read_text().splitlines()
+
+    var rows = len(lines)
+    var cols = lines[0].byte_length() / 2
+    var data = List[Int]()
+
+    for line in lines:
+        for i in range(0, line.byte_length(), 2):
+            var pair = line[byte = i : i + 2]
+            data.append(-Int(String(pair)))
+    # ANCHOR_END: data_setup
+
+    # ANCHOR: helpers
     def index_to_coord(index: Int) {imm} -> Tuple[Int, Int]:
         return (index / cols, index % cols)
 
-    # Convert index from row/col to linear
     def get_coord_data(row: Int, col: Int) {imm} -> Int:
         return data[row * cols + col]
 
-    var cool_indices: List[Tuple[Int, Int]] = []
+    # ANCHOR_END: helpers
 
+    # ANCHOR: cool_indices
+    var cool_indices: List[Tuple[Int, Int]] = []
+    # ANCHOR_END: cool_indices
+
+    # ANCHOR: write_data
     # Write the data in a grid format
-    def write_data() {imm data, imm}:
+    def write_data() {imm data, imm cool_indices, imm}:
         var print_width = 4
         for row in range(rows):
             for idx in range(row * cols, (row + 1) * cols):
@@ -70,12 +59,19 @@ def main():
                 print("")
         print()
 
+    # ANCHOR_END: write_data
+
+    # ANCHOR: initial_print
     write_data()
+    # ANCHOR_END: initial_print
 
-    var radius = 1  # How wide to search neighbors
-    var count = (radius * 2 + 1) ** 2 - 1  # neighbor count (3x3 - 1)
-    var half_count = count / 2  # half of the neighbors (4)
+    # ANCHOR: search_params
+    var radius = 1  # how far to look
+    var count = (radius * 2 + 1) ** 2 - 1  # how many neighbors?
+    var half_count = count / 2  # half of the neighbors
+    # ANCHOR_END: search_params
 
+    # ANCHOR: search_loop
     for index in range(len(data)):
         var row, col = index_to_coord(index)  # fetch the row and column
         var cooler = 0  # keeps a running comparison count
@@ -95,8 +91,14 @@ def main():
                 if neighbor > spot:
                     cooler += 1
 
+        # ANCHOR: mark_cool
         if cooler > half_count:  # each spot has 8 neighbors
             print(t"Cool spot: ({row}, {col})")
+            # ANCHOR_END: search_loop
             cool_indices.append((row, col))
+    # ANCHOR_END: mark_cool
 
+    # ANCHOR: final_call
     write_data()
+    # ANCHOR_END: final_call
+    # ANCHOR_END: final

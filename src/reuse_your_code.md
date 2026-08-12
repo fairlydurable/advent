@@ -1,10 +1,9 @@
 # Reuse your code 🔥
 
-Your puzzle is really the same handful of moves every day: read the input,
-pull the numbers, clean them up. Here's what you need: wrap those moves in
-functions you write once and call all December.
+<!-- markdownlint-disable MD024 -->
 
-**WORK IN PROGRESS**
+Many puzzles follow the same pattern to pull the numbers and clean them up in
+order to formulate a solution. Consolidating these
 
 ## The moves you keep repeating
 
@@ -20,19 +19,7 @@ In that folder, create `__init__.mojo` and add extractor. There's no
 `main()` function, just the one `extract_ints()` function:
 
 ```mojo
-def extract_ints(text: String) raises -> List[Int]:
-    var nums = List[Int]()
-    var cur = String("")
-    for i in range(text.byte_length()):
-        var c = String(text[byte=i])
-        if c >= "0" and c <= "9":
-            cur += c
-        elif cur:
-            nums.append(Int(cur))
-            cur = String("")
-    if cur:
-        nums.append(Int(cur))
-    return nums^
+{{#include ../snippets/reuse_your_code/toolkit/__init__.mojo:extract_ints}}
 ```
 
 Compile it with `precompile`. This builds toolkit.mojoc:
@@ -79,18 +66,13 @@ override it when they need to. Station 3 reads high when the sun hits it
 midday, so correct readings taken in those hours. Add to your library:
 
 ```mojo
-def corrected(reading: Float64, hour: Int, offset: Float64 = 1.5) -> Float64:
-    # station 3 bakes in solar loading between 10:00 and 14:00
-    if 10 <= hour < 14:
-        return reading - offset
-    return reading
+{{#include ../snippets/reuse_your_code/toolkit/__init__.mojo:corrected}}
 ```
 
 Call it from `main()` with the default, or name the argument to override it:
 
 ```mojo
-print(t"noon, default: {corrected(24.5, 12)}")              # 23.0
-print(t"noon, bigger:  {corrected(24.5, 12, offset=2.0)}")  # 22.5
+{{#include ../snippets/reuse_your_code/reuse_your_code.mojo:call_corrected}}
 ```
 
 ### Checkpoint
@@ -107,23 +89,13 @@ Small functions snap together. Add one that averages a list, then run readings
 through correction and into the average. In the library:
 
 ```mojo
-def mean_of(values: List[Float64]) -> Float64:
-    var total = 0.0
-    for v in values:
-        total += v
-    return total / Float64(len(values))
+{{#include ../snippets/reuse_your_code/toolkit/__init__.mojo:mean_of}}
 ```
 
 In `main()`, correct each reading, then summarize the corrected set:
 
 ```mojo
-    var raw: List[Float64] = [22.1, 24.5, 19.8]
-    var hours = [9, 12, 16]
-    var fixed = List[Float64]()
-    for r, h in zip(raw, hours):
-        fixed.append(corrected(r, h))
-    print(t"corrected: {fixed}")  # [22.1, 23.0, 19.8]
-    print(t"mean after correction: {round(mean_of(fixed), 2)}")  # 21.63
+{{#include ../snippets/reuse_your_code/reuse_your_code.mojo:compose}}
 ```
 
 ### Checkpoint
@@ -138,57 +110,19 @@ In `main()`, correct each reading, then summarize the corrected set:
 Your complete `toolkit/__init__.mojo`:
 
 ```mojo
-def extract_ints(text: String) raises -> List[Int]:
-    var nums = List[Int]()
-    var cur = String("")
-    for i in range(text.byte_length()):
-        var c = String(text[byte=i])
-        if c >= "0" and c <= "9":
-            cur += c
-        elif cur:
-            nums.append(Int(cur))
-            cur = String("")
-    if cur:
-        nums.append(Int(cur))
-    return nums^
-
-
-def corrected(reading: Float64, hour: Int, offset: Float64 = 1.5) -> Float64:
-    # station 3 bakes in solar loading between 10:00 and 14:00
-    if 10 <= hour < 14:
-        return reading - offset
-    return reading
-
-
-def mean_of(values: List[Float64]) -> Float64:
-    var total = 0.0
-    for v in values:
-        total += v
-    return total / Float64(len(values))
+{{#include ../snippets/reuse_your_code/toolkit/__init__.mojo:full}}
 ```
 
 and:
 
 ```mojo
-from toolkit import extract_ints, corrected, mean_of
-
-def main() raises:
-    print(t"reused: {extract_ints('readings: 3, 5, 8')}")  # [3, 5, 8]
-
-    print(t"noon, default: {corrected(24.5, 12)}")              # 23.0
-    print(t"noon, bigger:  {corrected(24.5, 12, offset=2.0)}")  # 22.5
-
-    var raw: List[Float64] = [22.1, 24.5, 19.8]
-    var hours = [9, 12, 16]
-    var fixed = List[Float64]()
-    for r, h in zip(raw, hours):
-        fixed.append(corrected(r, h))
-    print(t"corrected: {fixed}")                       # [22.1, 23.0, 19.8]
-    print(t"mean after correction: {round(mean_of(fixed), 2)}")  # 21.63
+{{#include ../snippets/reuse_your_code/reuse_your_code.mojo:full}}
 ```
 
-## What you touched
+## Topics covered
 
 Building a library and linking it, naming a move as a function, return-type
 contracts, returning a `List` with `^`, default arguments, keyword
 arguments at the call site, and composing small functions into a pipeline.
+
+<!-- markdownlint-enable MD024 -->

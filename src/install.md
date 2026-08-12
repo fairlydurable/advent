@@ -2,6 +2,8 @@
 
 This workbook uses the Mojo nightly build.
 
+<!-- markdownlint-disable MD024 -->
+
 ## System requirements
 
 Ensure your system supports Mojo.
@@ -134,3 +136,5 @@ the publisher is Modular.
 
 - **pixi**: `pixi remove mojo && exit`
 - **uv**: `uv pip uninstall mojo && uv sync && deactivate`
+
+<!-- markdownlint-enable MD024 -->

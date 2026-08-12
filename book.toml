@@ -11,3 +11,5 @@ additional-css = [
 additional-js = [
     "theme/mojolang.js",
 ]
+default-theme = "light"
+preferred-dark-theme = "ayu"

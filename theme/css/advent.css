@@ -1,5 +1,3 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500&display=swap");
-
 :root {
   --mojo-ember: #ffa01e;
   --mojo-nebula: #4057d8;
@@ -24,6 +22,24 @@
     "SFMono-Regular",
     Consolas,
     monospace;
+}
+
+/* Simple light/dark toggle (replaces the stock multi-theme picker) */
+
+.theme-toggle-icon-dark {
+  display: none;
+}
+
+html.coal .theme-toggle-icon-light,
+html.navy .theme-toggle-icon-light,
+html.ayu .theme-toggle-icon-light {
+  display: none;
+}
+
+html.coal .theme-toggle-icon-dark,
+html.navy .theme-toggle-icon-dark,
+html.ayu .theme-toggle-icon-dark {
+  display: inline;
 }
 
 /* Dark themes */
@@ -310,6 +326,24 @@ pre code {
   width: 100%;
   height: auto;
   border-radius: 8px;
+}
+
+/* Swap the chapter-intro illustration with the light/dark toggle */
+
+.intro-image .intro-image-dark {
+  display: none;
+}
+
+html.coal .intro-image-light,
+html.navy .intro-image-light,
+html.ayu .intro-image-light {
+  display: none;
+}
+
+html.coal .intro-image-dark,
+html.navy .intro-image-dark,
+html.ayu .intro-image-dark {
+  display: block;
 }
 
 /* Stack the introduction on narrow screens */

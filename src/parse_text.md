@@ -1,187 +1,44 @@
 # Process text into data 🔥
 
-A puzzle hands you text and wants answers in numbers. This page turns a raw
-temperature log into typed values you can add up, rejecting the junk lines the
-way real input always forces you to.
+<!-- markdownlint-disable MD024 -->
 
-## Create the input
-
-For a moment, you're going to be the Advent of Code creators and build a
-data file for testing.
-
-Create `parse_log.mojo`. Write a small temperature log to `temps.txt`:
-
-```mojo
-from std.pathlib import Path
-
-def main() raises:
-    var log = Path("temps.txt")
-
-    log.write_text(
-        String.write(
-            "20.5",
-            " 22.3",
-            "",
-            "19.8  ",
-            "not a number",
-            "26.0",
-            "25.1",
-            sep="\n",
-            end="\n",
-        )
-    )
-
-    print(log.read_text())
-```
-
-The file contains seven lines:
-
-- three clean readings
-- two readings with surrounding whitespace
-- one blank line
-- one invalid value
-
-### Checkpoint
-
-- `String.write()` joins `Writable` values into a `String`.
-- The `sep` argument places a newline between values.
-- The `end` argument adds a final newline.
-- `write_text()` creates the file or replaces its existing contents.
-
-### Other ways to create the input
-
-<details>
-<summary>Triple-quoted string</summary>
-
-Triple-quoted strings preserve line breaks. Keep the content aligned to the
-left to avoid adding indentation to the file:
-
-<pre>
-from std.pathlib import Path
-
-def main() raises:
-    var log = Path("temps.txt")
-
-    log.write_text("""20.5
- 22.3
-
-19.8  
-not a number
-26.0
-25.1
-""")
-
-    print(log.read_text())
-</pre>
-
-</details>
-
-<details>
-<summary>Adjacent string literals</summary>
-
-Mojo combines adjacent string literals. You must add the newline escapes
-yourself:
-
-<pre>
-from std.pathlib import Path
-
-def main() raises:
-    var log = Path("temps.txt")
-
-    log.write_text(
-        "20.5\n"
-        " 22.3\n"
-        "\n"
-        "19.8  \n"
-        "not a number\n"
-        "26.0\n"
-        "25.1\n"
-    )
-
-    print(log.read_text())
-</pre>
-
-</details>
-
-<details>
-<summary>Run-time strings</summary>
-
-Build the content from run-time `String` values:
-
-<pre>
-from std.pathlib import Path
-
-def main() raises:
-    var log = Path("temps.txt")
-
-    var values = Span([
-        "20.5",
-        " 22.3",
-        "",
-        "19.8  ",
-        "not a number",
-        "26.0",
-        "25.1",
-    ])
-
-    log.write_text("\n".join(values) + "\n")
-</pre>
-
-Easy to extend, but you must add the final newline yourself.
-
-</details>
+A puzzle hands you text and wants answers in numbers. This page returns to
+the sensor log from [Work with files](./work_with_files.md) and
+[Work with strings](./work_with_strings.md), and turns it into typed values
+you can add up, rejecting the junk lines the way real input always forces
+you to.
 
 ## Splitting lines
 
-When your puzzle needs you to process a line at a time, split
-your data into separate lines:
+Create `parse_text.mojo`, and split the log into separate lines, the same
+way you did in
+[Work with files](./work_with_files.md#split-into-lines):
 
 ```mojo
-var text = log.read_text()
-var lines = text.splitlines()
-print(t"Got {len(lines)} lines") # Got 7 lines
+{{#include ../snippets/parse_text/parse_text.mojo:read_lines}}
 ```
-
-### Checkpoint
-
-- `splitlines()` returns a `List[StringSlice]`.
-- Each slice refers to data owned by `text`, so keep `text` alive while
-  using the slices.
-- `splitlines()` handles `\n`, `\r\n`, and `\r`.
-- It doesn't return an extra empty line for the final newline.
-- For other separators, use `split(sep)`.
 
 ### Try this
 
-Replace:
+Replace `splitlines()` with `split("\n")`:
 
 ```mojo
-text.splitlines()
+{{#include ../snippets/parse_text/parse_text.mojo:split_vs_splitlines}}
 ```
 
-with:
-
-```mojo
-text.split("\n") # Got 8 lines
-```
-
-The final newline becomes an extra empty element. For line-oriented text,
-prefer `splitlines()`:
+The final newline becomes an extra empty element: 11 entries instead of 10.
+For line-oriented text, prefer `splitlines()`.
 
 ## Tidy your input
 
-To get your puzzle solved, you'll often need to strip whitespace
-and skip blank lines:
+Some of Chiller's lines carry stray leading or trailing whitespace. Strip
+each line, skip anything blank, and save the result in `cleaned_lines` so
+every step from here on works with tidy data instead of stripping again
+each time:
 
 ```mojo
-for line in lines:
-    var cleaned = line.strip()
-    if not cleaned:
-        continue
-    print(t"line: '{cleaned}'")
+{{#include ../snippets/parse_text/parse_text.mojo:strip_and_skip}}
 ```
-
-Six cleaned entries, and your blank line is skipped.
 
 ### Checkpoint
 
@@ -190,60 +47,84 @@ Six cleaned entries, and your blank line is skipped.
 - Use `lstrip()` or `rstrip()` to clean only one side.
 - Empty strings and string slices are false in conditional expressions.
 - `continue` skips the rest of the current iteration.
-- `break` exits the loop entirely.
+- Wrapping each cleaned slice in `String(...)` copies it out of `text`, so
+  `cleaned_lines` stays valid on its own.
+
+## Extract the fields
+
+Each line packs three pieces of information into one string: the day, the
+temperature, and the conditions. Split on the same separators the log
+uses to pull them apart:
+
+```mojo
+{{#include ../snippets/parse_text/parse_text.mojo:extract_fields}}
+```
+
+### Checkpoint
+
+- `split(sep)` returns a `List[StringSlice]`, a view into the original text.
+- Chaining `split()` calls peels off one layer of structure at a time.
 
 ## Type conversion
 
-While your puzzle input is text, your data often won't be:
+The temperature field still carries its unit. Try converting it directly:
 
 ```mojo
-var temps: List[Float64] = []  # Explicitly type this empty list
-
-for line in lines:
-    var cleaned = line.strip()
-    if not cleaned:
-        continue
-
-    temps.append(Float64(cleaned))
-
-print(t"Parsed {len(temps)} temperatures: {temps}")
+{{#include ../snippets/parse_text/parse_text.mojo:naive_float_fails}}
 ```
 
-When you run this, the program stops at `not a number`. Oops.
+`Float64()` raises. The trailing `C` isn't part of the number.
+
+Strip the unit first:
+
+```mojo
+{{#include ../snippets/parse_text/parse_text.mojo:strip_units}}
+```
 
 ### Checkpoint
 
 - `Float64(value)` raises when the text isn't a valid floating-point value.
+- `removesuffix(suffix)` strips the substring only if it appears at the end,
+  and returns the text unchanged otherwise.
+
+## Collect all readings
+
+Put the extraction and conversion together for every line in
+`cleaned_lines`:
+
+```mojo
+{{#include ../snippets/parse_text/parse_text.mojo:convert_to_float}}
+```
+
+Ten parsed readings.
+
+### Checkpoint
+
 - `append()` adds a value to the end of a list.
+- Typed lists like `List[Float64]` catch mismatched values at compile time.
 
 ## Handle invalid lines
 
-Catch conversion errors and keep parsing:
+Sensors fail. Copy `cleaned_lines` and simulate one more reading coming in
+corrupted:
 
 ```mojo
-var temps: List[Float64] = []
-var rejected: List[String] = []
-
-for line in lines:
-    var cleaned = line.strip()
-    if not cleaned:
-        continue
-
-    try:
-        temps.append(Float64(cleaned))
-    except:
-        rejected.append(String(cleaned))
-
-print(t"Parsed {len(temps)} temperatures: {temps}")
-print(t"Rejected {len(rejected)}: {rejected}")
+{{#include ../snippets/parse_text/parse_text.mojo:inject_bad_reading}}
 ```
 
-Five parsed readings and one rejected value.
+Catch conversion errors and keep parsing instead of crashing:
+
+```mojo
+{{#include ../snippets/parse_text/parse_text.mojo:handle_invalid}}
+```
+
+Ten parsed readings and one rejected value.
 
 ### Checkpoint
 
 - On failure, skip, record, replace, or stop.
-- The rejected list stores `String` copies rather than views into `text`.
+- The rejected list stores `String` copies rather than views into the
+  original line.
 
 ### Try this
 
@@ -254,87 +135,40 @@ Change `except` to `except e` and then print the error with the rejected
 line:
 
 ```mojo
-except e:
-    print(t"Rejected '{cleaned}': {e}")
-    rejected.append(String(cleaned))
+{{#include ../snippets/parse_text/parse_text.mojo:except_with_error}}
 ```
-
-## Clean up
-
-To remove the temporary file, add this import:
-
-```mojo
-from std.os import remove
-```
-
-Then call `remove(log)` at the end of `main()`.
 
 ## Final code
 
-Your complete `parse_log.mojo`:
+Your complete `parse_text.mojo`:
 
 ```mojo
-from std.pathlib import Path
-from std.os import remove
-
-def main() raises:
-    var log = Path("temps.txt")
-
-    log.write_text(
-        String.write(
-            "20.5",
-            " 22.3",
-            "",
-            "19.8  ",
-            "not a number",
-            "26.0",
-            "25.1",
-            sep="\n",
-            end="\n",
-        )
-    )
-
-    var text = log.read_text()
-    var lines = text.splitlines()
-    print(t"Got {len(lines)} lines")
-
-    var temps: List[Float64] = []
-    var rejected: List[String] = []
-
-    for line in lines:
-        var cleaned = line.strip()
-        if not cleaned:
-            continue
-
-        try:
-            temps.append(Float64(cleaned))
-        except:
-            rejected.append(String(cleaned))
-
-    print(t"Parsed {len(temps)} temperatures: {temps}")
-    print(t"Rejected {len(rejected)}: {rejected}")
-
-    remove(log)
+{{#include ../snippets/parse_text/parse_text.mojo:final}}
 ```
 
-## What you touched
+## Topics covered
 
-Reading and writing text files, `splitlines()`, `strip()`, string truthiness,
-value iteration, `continue`, typed lists, `append()`, conversion to
-`Float64`, and error handling.
+Splitting text, stripping whitespace, chained field extraction, string
+truthiness, `continue`, typed lists, `append()`, conversion to `Float64`,
+`removesuffix()`, and error handling.
 
 ## Also worth knowing
 
-**Comma-separated lines**:
+**Comma-separated columns**:
 
-For a simple row like: `Mon, 20.5`, split the line into columns:
+A naive `split(",")` doesn't clean up whitespace around the separator.
+Chiller's foggy day has extra spaces after the comma:
 
 ```mojo
-var columns = line.split(",")
+{{#include ../snippets/parse_text/parse_text.mojo:split_columns}}
 ```
+
+Strip each column afterward if that matters for your puzzle.
 
 **Preserving line endings**:
 
 Use `splitlines(keepends=True)` to preserve each line's `\n` or `\r\n`.
 This is useful when rewriting a file while keeping its original line-ending
 style.
+
+<!-- markdownlint-enable MD024 -->

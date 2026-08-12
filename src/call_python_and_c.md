@@ -2,6 +2,8 @@
 
 **WORK IN PROGRESS**
 
+<!-- markdownlint-disable MD024 -->
+
 Your puzzle is solved, but one question hangs over the season: is the Pole
 actually warming, or is that just the midday sun on station 3? Here's what you
 need: hand your readings to Python's numpy to fit a trend, and to a C library to
@@ -13,19 +15,23 @@ reimplementing it.
 
 ## The question
 
-You corrected the sun bias back on the toolkit page, so these readings measure
-climate, not sunshine. Skip that correction and you'd fit a trend to the
-weather on station 3's roof.
+Station 3 is the one with the sun problem: readings taken between 10:00 and
+14:00 run warm because the sensor bakes in direct light. Pull station 3's
+entries back out of [station_reports.txt](./downloads/station_reports.txt)
+and correct them the same way you did on the toolkit page, so the trend you
+fit measures climate, not sunshine on a roof.
 
 Create `warming.mojo`:
 
 ```mojo
-def main() raises:
-    var days = [0, 1, 2, 3, 4]
-    # readings already corrected for the midday sun on station 3
-    var readings: List[Float64] = [19.0, 19.5, 20.1, 20.4, 21.2]
-    print(t"{len(readings)} days")
+{{#include ../snippets/call_python_and_c/warming.mojo:first_program}}
 ```
+
+Day 1's only station 3 reading lands at noon, right in the sun-bias window,
+so it comes in at a suspiciously warm `-18.5C`. The correction knocks it back
+down to `-20.0`, right in line with the rest of the season. Skip the
+correction and the trend still looks like it's warming, just by a slightly
+inflated amount.
 
 ## Call Python: fit a trend with numpy
 
@@ -35,28 +41,13 @@ and the slope's sign answers the question.
 Add the import at the top:
 
 ```mojo
-from std.python import Python
+{{#include ../snippets/call_python_and_c/warming.mojo:numpy_import}}
 ```
 
 Then, in `main()`:
 
 ```mojo
-    try:
-        var np = Python.import_module("numpy")
-
-        var xs = Python.list()
-        for d in days:
-            xs.append(d)
-        var ys = Python.list()
-        for r in readings:
-            ys.append(r)
-
-        var fit = np.polyfit(xs, ys, 1)  # [slope, intercept]
-        var slope = fit[0]               # degrees per day
-        print(t"trend: {slope} C/day")   # ~0.53, rising
-        print(t"warming? {slope > 0}")   # True
-    except:
-        print("numpy not found. Add it with `pixi add numpy`.")
+{{#include ../snippets/call_python_and_c/warming.mojo:numpy_fit}}
 ```
 
 ### Checkpoint
@@ -81,29 +72,13 @@ function by name to reduce the whole array in one shot.
 Add the FFI imports at the top:
 
 ```mojo
-from std.ffi import OwnedDLHandle, c_int, c_double
+{{#include ../snippets/call_python_and_c/warming.mojo:blas_import}}
 ```
 
 Then, in `main()`:
 
 ```mojo
-    try:
-        var blas = OwnedDLHandle(
-            "/System/Library/Frameworks/Accelerate.framework/Accelerate"
-        )
-        comptime origin = origin_of(readings)
-
-        # cblas_dasum(count, X, stride) sums |X| in one C call
-        var dasum = blas.get_function[
-            def(c_int, UnsafePointer[c_double, origin], c_int)
-            thin abi("C") -> c_double
-        ]("cblas_dasum")
-
-        var total = dasum(c_int(len(readings)), readings.unsafe_ptr(), c_int(1))
-        print(t"season mean: {total / Float64(len(readings))}")  # 20.04
-        _ = blas  # keep the handle alive to the end of the call
-    except:
-        print("BLAS not found.")
+{{#include ../snippets/call_python_and_c/warming.mojo:blas_reduce}}
 ```
 
 ### Checkpoint
@@ -115,6 +90,8 @@ Then, in `main()`:
   your `List[Float64]` passes straight through.
 - `readings.unsafe_ptr()` hands C the array's memory. Get the pointer right
   before the call; anything that grows the list can move it.
+- `cblas_dasum` sums magnitudes, not signed values. Every station 3 reading is
+  below zero, so negating the result hands back the real mean.
 - macOS ships BLAS inside the Accelerate framework, shown here. On Linux the
   library is `libopenblas.so` or `libblas.so.3`, usually installed separately.
 
@@ -123,49 +100,10 @@ Then, in `main()`:
 Your complete `warming.mojo`:
 
 ```mojo
-from std.python import Python
-from std.ffi import OwnedDLHandle, c_int, c_double
-
-
-def main() raises:
-    var days = [0, 1, 2, 3, 4]
-    # readings already corrected for the midday sun on station 3
-    var readings: List[Float64] = [19.0, 19.5, 20.1, 20.4, 21.2]
-
-    # --- Python: fit a trend line with numpy ---
-    try:
-        var np = Python.import_module("numpy")
-        var xs = Python.list()
-        for d in days:
-            xs.append(d)
-        var ys = Python.list()
-        for r in readings:
-            ys.append(r)
-        var fit = np.polyfit(xs, ys, 1)  # [slope, intercept]
-        var slope = fit[0]               # degrees per day
-        print(t"trend: {slope} C/day")   # ~0.53, rising
-        print(t"warming? {slope > 0}")   # True
-    except:
-        print("numpy not found. Add it with `pixi add numpy`.")
-
-    # --- C: reduce the readings with BLAS ---
-    try:
-        var blas = OwnedDLHandle(
-            "/System/Library/Frameworks/Accelerate.framework/Accelerate"
-        )
-        comptime origin = origin_of(readings)
-        var dasum = blas.get_function[
-            def(c_int, UnsafePointer[c_double, origin], c_int)
-            thin abi("C") -> c_double
-        ]("cblas_dasum")
-        var total = dasum(c_int(len(readings)), readings.unsafe_ptr(), c_int(1))
-        print(t"season mean: {total / Float64(len(readings))}")  # 20.04
-        _ = blas
-    except:
-        print("BLAS not found.")
+{{#include ../snippets/call_python_and_c/warming.mojo:final}}
 ```
 
-## What you touched
+## Topics covered
 
 Importing a Python module, gating an import with `try`/`except`, building a
 `Python.list` to cross the boundary, working with a `PythonObject`, loading a C
@@ -175,3 +113,5 @@ library with `OwnedDLHandle`, naming a C signature for `get_function`, the
 You started the season printing one line and finished it linking Mojo to Python
 and C to answer a real question. The whole toolkit, from a first `print` to the
 outside world, is yours now. Go solve some puzzles.
+
+<!-- markdownlint-enable MD024 -->

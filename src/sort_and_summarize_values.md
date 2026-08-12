@@ -1,40 +1,37 @@
 # Sort and summarize values 🔥
 
-Manipulating data helps you get to the truths hidden within it. When your
-puzzle wants the coldest and warmest days, for example, it helps to use
+<!-- markdownlint-disable MD024 -->
+
+Manipulating data helps you identify patterns and trends. When your
+puzzle wants the coldest and warmest readings, for example, it helps to use
 Mojo sorting and filtering.
 
-## The week's readings
+## The station readings
 
-Your puzzle supplies you with the names of each weekday and a temperature
-reading for each day. Create `summary.mojo`:
+Create `sort_and_summarize_values.mojo`. Read
+[station_reports.txt](./downloads/station_reports.txt) and pull out each
+reading's temperature, alongside a label so you can trace a value back to
+the entry it came from:
 
 ```mojo
-def main() raises:
-    var days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
-    var readings: List[Float64] = [22.1, 19.8, -2.5, 25.0, 18.7]
-    var count = len(readings)
-    print(t"{count} readings")  # 5 readings
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:program}}
 ```
 
 ## Sort to rank
 
-Sorting helps you order the list, so you can pick the coldest and
-warmest days from the two ends.
+Sorting orders the list, so you can pick the coldest and
+warmest readings from the two ends.
 
 Import `sort` at the top of your file:
 
 ```mojo
-from std.builtin.sort import sort
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:import_sort}}
 ```
 
-Sort a copy so the original day order stays intact:
+Sort a copy so the original order stays intact:
 
 ```mojo
-var ordered = readings.copy()
-sort(ordered)
-print(t"sorted: {ordered}")  # [-2.5, 18.7, 19.8, 22.1, 25.0]
-print(t"coldest: {ordered[0]}, warmest: {ordered[count - 1]}")
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:sort_body}}
 ```
 
 ### Checkpoint
@@ -42,7 +39,7 @@ print(t"coldest: {ordered[0]}, warmest: {ordered[count - 1]}")
 - `sort()` is a free function, not a method. It sorts in place and
   ascending, so it returns nothing and rewrites the list you pass.
 - Sort a `.copy()` when you need the original ordering. Here `readings`
-  stays aligned with `days`.
+  stays aligned with `labels`.
 
 ## Top of the list
 
@@ -50,43 +47,45 @@ Once a list is sorted, the largest values are at the end. Slice off the
 last three to retrieve them in ascending order:
 
 ```mojo
-print(t"top 3 warmest: {ordered[(count - 3):]}")  # [19.8, 22.1, 25.0]
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:top3}}
 ```
 
 ### Checkpoint
 
-- This is the "top three" move puzzles ask for constantly: sort once, then
-  take from the end.
+- This provides the "top three" that many puzzles ask for: sort once, then
+take from the end.
 
 ## Reduce your data
 
-You've been asked to find the average temperature over the five-day period.
+You've been asked to find the average temperature across every reading.
 
-To sum your list, add the following import:
+Import `sum()`, `min()`, and `max()` from the reduction package:
 
 ```mojo
-from std.algorithm.reduction import sum
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:import_reduction}}
 ```
 
 Call `sum()` and divide by `count`. This line also rounds the result to a
 single decimal place.
 
 ```mojo
-print(t"average: {round(sum(readings) / Float64(count), 1)}")  # 16.6
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:avg_print}}
 ```
 
 ### Checkpoint
 
 - `round(value, digits)` tidies a float for display. Floating-point totals
   carry representation noise. `round()` helps you control that.
+- The reduction package lets you use `sum()`, `product()`, `min()`,
+  `max()`, and `mean()`.
 
 ## Filter it down
 
-Use a comprehension filtered for negative values to build a new list:
+Use a comprehension filtered for the most extreme readings to build a new
+list:
 
 ```mojo
-var below = [r for r in readings if r < 0.0]
-print(t"below freezing: {below}")  # [-2.5]
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:filter_body}}
 ```
 
 ### Checkpoint
@@ -94,49 +93,37 @@ print(t"below freezing: {below}")  # [-2.5]
 - `[expr for x in it if cond]` keeps only the elements where `cond` is true.
 - The filter runs as the list builds, so you never construct the rejects.
 
-## Pair the days
+## Pair the readings with their labels
 
-The `days` list has important information you need to tell _when_ the
-weather extreme happened.
+The `labels` list has important information you need to tell _which_
+station and day a reading belongs to.
 
-`zip()` combines two lists, allowing you to walk them in step. It hands you
-one value from each. Use this to align readings with their day names:
+`zip()` combines two lists, allowing you to walk through paired values in step.
+Use this to align readings with their labels:
 
 ```mojo
-for day, r in zip(days, readings):
-    print(t"{day}: {r}")
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:zip_loop}}
 ```
 
 ### Checkpoint
 
-- `zip()` yields a tuple per step, unpacked here into `day` and `r`.
+- `zip()` yields a tuple per step, unpacked here into `label` and `r`.
 - If the lists have different lengths, `zip()` stops at the shorter list,
   so you won't run off the end.
 
-## Match the days to the extremes
+## Match the readings to the extremes
 
-Using std.algorithm.reduction, import `min()` and `max()`, then fetch the
-minimum and maximum values without sorting:
+Using `max()` and `min()`, fetch the minimum and maximum values without
+sorting:
 
 ```mojo
-from std.algorithm.reduction import sum, min, max
-
-# ...
-
-var max_value = max(readings)  # 25.0
-var min_value = min(readings)  # -2.5
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:minmax_setup}}
 ```
 
 Knowing the values helps you find their original indices in `readings`:
 
 ```mojo
-try:
-    var min_index = readings.index(min_value)
-    print(t"Coldest day: {days[min_index]} with {min_value}°C")
-    var max_index = readings.index(max_value)
-    print(t"Hottest day: {days[max_index]} with {max_value}°C")
-except e:
-    print(e)
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:try_except}}
 ```
 
 Wrapping your calls to `index()` in a `try`/`except` statement ensures
@@ -145,51 +132,17 @@ that any errors will be caught and reported.
 If you'd like to see that error in action, tweak either value. For example
 `.index(min_value + 1.0)`.
 
-### Checkpoint
-
-- The reduction package lets you use `sum()`, `product()`, `min()`,
-  `max()`, and `mean()`.
-
 ## Final code
 
-Your complete `summary.mojo`:
+Your complete `sort_and_summarize_values.mojo`:
 
 ```mojo
-from std.builtin.sort import sort
-from std.algorithm.reduction import sum, min, max
-
-def main() raises:
-    var days = ["Mon", "Tue", "Wed", "Thu", "Fri"]
-    var readings: List[Float64] = [22.1, 19.8, -2.5, 25.0, 18.7]
-    var count = len(readings)
-    print(t"{count} readings")  # 5 readings
-
-    var ordered = readings.copy()
-    sort(ordered)
-    print(t"sorted: {ordered}")  # [-2.5, 18.7, 19.8, 22.1, 25.0]
-    print(t"coldest: {ordered[0]}, warmest: {ordered[count - 1]}")
-    print(t"top 3 warmest: {ordered[(count - 3):]}")
-    print(t"average: {round(sum(readings) / Float64(count), 1)}")  # 16.6
-
-    var below = [r for r in readings if r < 0.0]
-    print(t"below freezing: {below}")  # [-2.5]
-
-    for day, r in zip(days, readings):
-        print(t"{day}: {r}")
-
-    var max_value = max(readings)  # 25.0
-    var min_value = min(readings)  # -2.5
-
-    try:
-        var min_index = readings.index(min_value)
-        print(t"Coldest day: {days[min_index]} with {min_value}°C")
-        var max_index = readings.index(max_value)
-        print(t"Hottest day: {days[max_index]} with {max_value}°C")
-    except e:
-        print(e)
+{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:final}}
 ```
 
-## What you touched
+## Topics covered
 
 Sorting, reductions (`sum()`, `min()`, `max()`), filtered comprehensions,
 `zip()`, and locating values with `index()`.
+
+<!-- markdownlint-enable MD024 -->

@@ -1,29 +1,29 @@
 # Count and look up values 🔥
 
+<!-- markdownlint-disable MD024 -->
+
 Working with collections is core to Advent of Code puzzles. Understanding
 and using lists, dictionaries, sets, and tuples helps you reach solutions.
 
 ## Your puzzle
 
-You just got handed a puzzle with a pile of station reports. "Which stations
-went quiet?"
+You just got handed a puzzle with a pile of station reports. You need to
+identify which stations went quiet.
 
-Here's what you need: tally repeats (a great match to dictionaries),
+Here's what you'll need: tallys (a great match to dictionaries),
 membership tests (perfect for sets), and compound keys (tuples are a good
 choice).
 
 ### The situation report
 
-You already parsed the log, so every reading now carries its station id.
-You've already lined them up as a plain list, repeats and all:
+Download [station_reports.txt](./downloads/station_reports.txt). Every line
+names a station and the day it reported, arriving out of order with
+repeats, the way a real batch of sensor uploads would:
 
-Create `reports.mojo`:
+Create `count_and_look_up_values.mojo`, and read the reports:
 
 ```mojo
-def main() raises:
-    # each reading's station id, already parsed from the log
-    var reported_ids = [3, 1, 3, 5, 1, 3, 1, 5, 1, 5, 5, 3, 5, 5, 1]
-    print(t"{len(reported_ids)} readings")  # 15 readings
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:reports}}
 ```
 
 You need to turn that raw list into answers.
@@ -36,22 +36,7 @@ A `Dict` maps keys to values. To count, use each station id as a key and
 bump its running total. Add this to `main()`:
 
 ```mojo
-var counts = Dict[Int, Int]()
-for id in reported_ids:
-    counts[id] = counts.get(id, 0) + 1
-    # Key not found? Count defaults to 0.
-
-for entry in counts.items():
-    print(t"station {entry.key}: {entry.value} readings")
-```
-
-Here's the output. The counts won't vary but the order may, as
-dictionaries are not ordered collections:
-
-```mojo
-station 3: 4 readings
-station 1: 5 readings
-station 5: 6 readings
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:tally}}
 ```
 
 Station 1 reported five times, station 3 four times, and station 5 six
@@ -66,7 +51,8 @@ times. Two stations never show up at all.
   first reading.
 - `counts.items()` walks the pairs. Each `entry` carries `entry.key` and
   `entry.value`.
-- Dictionaries don't provide an order guarantee.
+- Dictionaries don't provide an order guarantee. Sort the entries yourself
+  before printing them if you need a stable order.
 
 ## Look up fast with a set
 
@@ -79,24 +65,13 @@ Sets aren't part of Mojo's automatic imports (the "prelude") so add this
 import to the top of your file.
 
 ```mojo
-from std.collections import Set
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:import_set}}
 ```
 
 Then add this to `main()`:
 
 ```mojo
-var reported: Set[Int] = {}
-for id in reported_ids:
-    reported.add(id)
-
-for station in range(1, 6):
-    print(t"Station {station} reported? "  # TStrings allow concatenation
-            t"{"Yes" if station in reported else "No"}")
-# Station 1 reported? Yes
-# Station 2 reported? No
-# Station 3 reported? Yes
-# Station 4 reported? No
-# Station 5 reported? Yes
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:lookup_set}}
 ```
 
 Did station 1 report? Yes. Did station 2? No.
@@ -117,9 +92,7 @@ You know the roster you expected to hear from. Subtract the ones that reported
 and the silent stations fall out.
 
 ```mojo
-var expected = Set[Int](1, 2, 3, 4, 5)
-var missing = expected - reported
-print(t"silent stations: {missing}")  # {2, 4} in either order
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:silent_stations}}
 ```
 
 Like dictionaries, sets are not ordered, so you may see "{4, 2}".
@@ -141,14 +114,7 @@ One key isn't always enough. To count readings per station *and* day, key the
 dictionary on a tuple.
 
 ```mojo
-var per_day = Dict[Tuple[Int, Int], Int]()
-var log = [(3, 0), (3, 0), (1, 2), (3, 1)]  # (station, day)
-for pair in log:
-    per_day[pair] = per_day.get(pair, 0) + 1
-
-for entry in per_day.items():
-    var station, day = entry.key  # unpack the tuple key
-    print(t"station {station}, day {day}: {entry.value}")
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:tuple_keys}}
 ```
 
 Dictionary keys must be hashable, and integer tuples fit that requirement.
@@ -160,124 +126,48 @@ Dictionary keys must be hashable, and integer tuples fit that requirement.
   own.
 - `var station, day = entry.key` unpacks a tuple into named bindings in
   one step.
-- Reach for compound keys whenever "per X" quietly becomes "per X and Y".
+- Reach for compound keys whenever "per X" becomes "per X and Y".
 
 ## Comprehensions: smart data retrieval
 
-Now imagine your data set looks like this:
+Stations 2 and 4 never reported at all. The remaining question is narrower:
+among the three stations that did report, did any of them miss a day?
+
+Build a set of the `(station, day)` pairs that actually showed up:
 
 ```mojo
-var data = [(1, 0), (1, 0), (1, 0), (2, 0), (2, 0), (3, 0),
-            (3, 0), (3, 0), (1, 1), (3, 1), (3, 1), (3, 1),
-            (3, 1), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2),
-            (1, 2), (2, 2), (2, 2), (3, 2), (3, 2), (3, 2),
-            (3, 2)]
-```
-
-Each entry in the `data` list uses the same tuple form as before, but
-in this puzzle, you have only three stations to work with.
-
-Your job is to find the stations that didn't report and which day they
-went silent.
-
-Instead of unpacking the tuples, build a set:
-
-```mojo
-var per_day_set: Set[Tuple[Int, Int]] = {}
-for pair in data:
-    per_day_set.add(pair)
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:build_set}}
 ```
 
 Mojo comprehensions let you iterate and filter results in one expression:
 
 ```mojo
-var missing_days = [String(t"Station {station} - Day {day}")
-    for station in range(1, 4)
-    for day in range(3)
-    if (station, day) not in per_day_set
-]
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:comprehension}}
 ```
 
-In this example, missing_days iterates over each combination of `station`
-and `day`, selecting only those items that don't appear in the set.
+`missing_days` iterates over every combination of `station` and `day`
+across the three reporting stations, selecting only the pairs that never
+appear in `per_day_set`.
 
-The result? Station 2 failed to report on day 1. Because your days use
-zero-indexing, that's the second day:
+The result: station 1 never reported on day 1.
 
 ```mojo
-print(t"missing days: {missing_days}")  # ['Station 2 - Day 1]'
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:print_missing}}
 ```
-
-Remove `(1, 1)` from your data to add another item to missing days.
 
 ## Final code
 
-Your complete `reports.mojo`:
+Your complete `count_and_look_up_values.mojo`:
 
 ```mojo
-from std.collections import Set
-
-def main() raises:
-    # each reading's station id, already parsed from the log
-    var reported_ids = [3, 1, 3, 5, 1, 3, 1, 5, 1, 5, 5, 3, 5, 5, 1]
-    print(t"{len(reported_ids)} readings")  # 15
-
-    var counts = Dict[Int, Int]()
-    for id in reported_ids:
-        counts[id] = counts.get(id, 0) + 1
-
-    for entry in counts.items():
-        print(t"station {entry.key}: {entry.value} readings")
-
-    var reported: Set[Int] = {}
-    for id in reported_ids:
-        reported.add(id)
-
-    for station in range(1, 6):
-        print(t"Station {station} reported? "  # TStrings allow concatenation
-                t"{"Yes" if station in reported else "No"}")
-    # Station 1 reported? Yes
-    # Station 2 reported? No
-    # Station 3 reported? Yes
-    # Station 4 reported? No
-    # Station 5 reported? Yes
-
-    var expected = Set[Int](1, 2, 3, 4, 5)
-    var missing = expected - reported
-    print(t"silent stations: {missing}")  # {2, 4}
-
-    var per_day = Dict[Tuple[Int, Int], Int]()
-    var log = [(3, 0), (3, 0), (1, 2), (3, 1)]  # (station, day)
-    for pair in log:
-        per_day[pair] = per_day.get(pair, 0) + 1
-
-    for entry in per_day.items():
-        var station, day = entry.key  # unpack the tuple key
-        print(t"station {station}, day {day}: {entry.value}")
-
-    # Try removing (1, 1) after running the missing days code below
-    var data = [(1, 0), (1, 0), (1, 0), (2, 0), (2, 0), (3, 0),
-                (3, 0), (3, 0), (1, 1), (3, 1), (3, 1), (3, 1),
-                (3, 1), (1, 2), (1, 2), (1, 2), (1, 2), (1, 2),
-                (1, 2), (2, 2), (2, 2), (3, 2), (3, 2), (3, 2),
-                (3, 2)]
-
-    var per_day_set: Set[Tuple[Int, Int]] = {}
-    for pair in data:
-        per_day_set.add(pair)
-
-    var missing_days = [String(t"Station {station} - Day {day}")
-        for station in range(1, 4)
-        for day in range(3)
-        if (station, day) not in per_day_set
-    ]
-
-    print(t"missing days: {missing_days}")  # ['Station 2 - Day 1']
+{{#include ../snippets/count_and_look_up_values/count_and_look_up_values.mojo:final}}
 ```
 
-## What you touched
+## Topics covered
 
 Dictionaries as counters, `get()` with a default, iterating `items()`, sets
 for uniqueness and fast membership, set differences, tuples as compound
 keys, tuple unpacking, and comprehensions for generating and filtering
-combinations
+combinations.
+
+<!-- markdownlint-enable MD024 -->
