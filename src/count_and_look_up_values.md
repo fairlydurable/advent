@@ -2,8 +2,27 @@
 
 <!-- markdownlint-disable MD024 -->
 
+<div class="intro">
+  <div class="intro-text">
+
 Working with collections is core to Advent of Code puzzles. Understanding
 and using lists, dictionaries, sets, and tuples helps you reach solutions.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/tally-light.png"
+      alt="Mojo tallying data."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/tally-dark.png"
+      alt="Mojo tallying data."
+    >
+  </div>
+</div>
 
 ## Your puzzle
 

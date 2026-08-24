@@ -1,6 +1,7 @@
 # Work with grids 🔥
 
-<!-- markdownlint-disable MD024 -->
+<div class="intro">
+  <div class="intro-text">
 
 Dr. Green grows fresh vegetables for the entire North Pole in a cozy
 greenhouse tucked behind the workshop. Unfortunately, a few warming pads
@@ -16,6 +17,24 @@ find the cool spots by comparing each sensor with its neighbors.
 Along the way you'll learn how to represent a grid, convert between
 coordinates and array indices, walk neighboring cells, and visualize
 your results.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/grid-light.png"
+      alt="Mojo inspecting a grid layout."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/grid-dark.png"
+      alt="Mojo inspecting a grid layout."
+    >
+  </div>
+</div>
+
+<!-- markdownlint-disable MD024 -->
 
 ## Today's data
 
@@ -54,6 +73,24 @@ row-major list of temperatures:
 ```
 
 The list contains five rows of seven readings each.
+
+> **Detective Mojo**
+> <center>
+> <div class="outro-image">
+> <img
+> class="outro-image-light"
+> src="img/plant-grow-light.png"
+> alt="On the hunt for an answer to the sensor issues."
+>    >
+> <img
+> class="outro-image-dark"
+> src="img/plant-grow-dark.png"
+> alt="On the hunt for an answer to the sensor issues."
+>    >
+> </div>
+> </center>
+> &nbsp;
+>
 
 ## Convert between indices and coordinates
 
@@ -204,6 +241,24 @@ The highlighted grid makes it clear where the colder regions are:
 
 The failed warming pad is immediately obvious.
 
+> **Good work**
+> <center>
+> <div class="outro-image">
+> <img
+> class="outro-image-light"
+> src="img/sensorbration-light.png"
+> alt="Mojo awards a blue ribbon to consistent sensor #7"
+>    >
+> <img
+> class="outro-image-dark"
+> src="img/sensorbration-dark.png"
+> alt="Mojo awards a blue ribbon to consistent sensor #7"
+>    >
+> </div>
+> </center>
+> &nbsp;
+>
+
 ## Final code
 
 Your complete `work_with_grids.mojo`:
@@ -222,5 +277,23 @@ Representing a grid in a linear array, row-major indexing, tuple
 unpacking, nested loops, coordinate arithmetic, chained comparisons,
 neighborhood searches, simple visualization, and one of the most common
 patterns in Advent of Code.
+
+> **Finding broken sensors**
+> <center>
+> <div class="outro-image">
+> <img
+> class="outro-image-light"
+> src="img/sensor-light.png"
+> alt="Mojo finds the problem by checking the sensors"
+>    >
+> <img
+> class="outro-image-dark"
+> src="img/sensor-dark.png"
+> alt="Mojo finds the problem by checking the sensors"
+>    >
+> </div>
+> </center>
+> &nbsp;
+>
 
 <!-- markdownlint-enable MD024 -->

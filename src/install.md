@@ -1,6 +1,28 @@
 # Install Mojo 🔥
 
+<div class="intro">
+  <div class="intro-text">
+
 This workbook uses the Mojo nightly build.
+
+Here's how you can make sure your system supports Mojo, install it, update
+it, and uninstall.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/install-light.png"
+      alt="Mojo prepares to install itself."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/install-dark.png"
+      alt="Mojo prepares to install itself."
+    >
+  </div>
+</div>
 
 <!-- markdownlint-disable MD024 -->
 

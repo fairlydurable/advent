@@ -2,11 +2,30 @@
 
 <!-- markdownlint-disable MD024 -->
 
+<div class="intro">
+  <div class="intro-text">
+
 A puzzle hands you text and wants answers in numbers. This page returns to
 the sensor log from [Work with files](./work_with_files.md) and
 [Work with strings](./work_with_strings.md), and turns it into typed values
 you can add up, rejecting the junk lines the way real input always forces
 you to.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/typed-data-light.png"
+      alt="Mojo casting numbers."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/typed-data-dark.png"
+      alt="Mojo casting numbers."
+    >
+  </div>
+</div>
 
 ## Splitting lines
 

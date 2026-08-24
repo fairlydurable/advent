@@ -2,10 +2,29 @@
 
 <!-- markdownlint-disable MD024 -->
 
+<div class="intro">
+  <div class="intro-text">
+
 Advent of Code puzzles often require you to extract numbers from text files. You
 typically need to find the numbers, separate out the ones you want,
 and turn them into values you can compute with. This page returns
 to the sensor log from [Work with files](./work_with_files.md).
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/pull-numbers-light.png"
+      alt="Mojo reaches for the number."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/pull-numbers-dark.png"
+      alt="Mojo reaches for the number."
+    >
+  </div>
+</div>
 
 ## Scan for the numbers
 

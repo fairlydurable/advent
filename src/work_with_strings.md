@@ -2,6 +2,9 @@
 
 <!-- markdownlint-disable MD024 -->
 
+<div class="intro">
+  <div class="intro-text">
+
 Advent of Code inputs arrive as text, but the answers are hiding inside:
 numbers, labels, separators, commands, coordinates, and clues.
 
@@ -12,6 +15,21 @@ This page picks up the sensor log from
 operations you'll reach for again and again: trim it, search it, slice it,
 split it, and reshape it. The first line of that log is deliberately messy,
 so you have real whitespace and casing problems to clean up as you go.
+
+  </div>
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/strings-light.png"
+      alt="Mojo pulls numbers from text."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/strings-dark.png"
+      alt="Mojo pulls numbers from text."
+    >
+  </div>
+</div>
 
 ## It's plain ASCII
 
@@ -252,8 +270,8 @@ Run it. You should see `True`, `7`, `-1`, `True`, `True`.
 
 ### Try this
 
-There's a trap hiding in `find()`. A missing value returns `-1`, and `-1`
-is truthy:
+There's a trap hiding in `find()`. A missing value returns `-1`. In Mojo,
+`-1` is truthy:
 
 ```mojo
 {{#include ../snippets/work_with_strings/string_tour.mojo:find_truthy_trap}}
@@ -392,5 +410,23 @@ the slices to `String` to use them with string construction.
 `s.count(sub)` returns how many non-overlapping copies of `sub` appear
 in `s`. Pair it with `find` and `replace` for full
 search-and-substitute work.
+
+> **Working with Strings**
+> <center>
+> <div class="outro-image">
+> <img
+> class="outro-image-light"
+> src="img/unravel-light.png"
+> alt="Working with strings."
+>    >
+> <img
+> class="outro-image-dark"
+> src="img/unravel-dark.png"
+> alt="Working with strings text."
+>    >
+> </div>
+> </center>
+> &nbsp;
+>
 
 <!-- markdownlint-enable MD024 -->

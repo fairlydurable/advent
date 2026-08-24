@@ -20,13 +20,13 @@ system, they need a program that can inspect the data.
   <div class="intro-image">
     <img
       class="intro-image-light"
-      src="img/temperatures-bright.jpg"
-      alt="Mojo inspecting a North Pole temperature monitor."
+      src="img/temperature-light.png"
+      alt="Mojo inspects a North Pole temperature monitor."
     >
     <img
       class="intro-image-dark"
-      src="img/temperatures-dark.jpg"
-      alt="Mojo inspecting a North Pole temperature monitor."
+      src="img/temperature-dark.png"
+      alt="Mojo inspects a North Pole temperature monitor."
     >
   </div>
 </div>

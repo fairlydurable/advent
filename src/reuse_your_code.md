@@ -2,8 +2,28 @@
 
 <!-- markdownlint-disable MD024 -->
 
+<div class="intro">
+  <div class="intro-text">
+
 Many puzzles follow the same pattern to pull the numbers and clean them up in
-order to formulate a solution. Consolidating these
+order to formulate a solution. Consolidating these into reusable libraries
+means you only need to solve your problems once.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/reuse-code-light.png"
+      alt="Mojo packaging reusable code."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/reuse-code-dark.png"
+      alt="Mojo packaging reusable code."
+    >
+  </div>
+</div>
 
 ## The moves you keep repeating
 
@@ -126,3 +146,21 @@ contracts, returning a `List` with `^`, default arguments, keyword
 arguments at the call site, and composing small functions into a pipeline.
 
 <!-- markdownlint-enable MD024 -->
+
+> **Code reuse**
+> <center>
+> <div class="outro-image">
+> <img
+> class="outro-image-light"
+> src="img/code-reuse.png"
+> alt="Development realities. Three versions of the same code."
+>    >
+> <img
+> class="outro-image-dark"
+> src="img/code-reuse.png"
+> alt="Development realities. Three versions of the same code."
+>    >
+> </div>
+> </center>
+> &nbsp;
+>

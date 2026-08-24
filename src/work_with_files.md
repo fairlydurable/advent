@@ -16,7 +16,7 @@ managers: the same tools you'll use again and again throughout AoC.
   <div class="intro-image">
     <img
       class="intro-image-light"
-      src="img/files-bright.png"
+      src="img/files-light.png"
       alt="Mojo inspecting a North Pole temperature monitor."
     >
     <img

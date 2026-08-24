@@ -2,9 +2,28 @@
 
 <!-- markdownlint-disable MD024 -->
 
+<div class="intro">
+  <div class="intro-text">
+
 Manipulating data helps you identify patterns and trends. When your
 puzzle wants the coldest and warmest readings, for example, it helps to use
 Mojo sorting and filtering.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/tallied-light.png"
+      alt="Mojo with tallied data."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/tallied-dark.png"
+      alt="Mojo with tallied data."
+    >
+  </div>
+</div>
 
 ## The station readings
 

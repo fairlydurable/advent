@@ -1,5 +1,8 @@
 # Welcome to Advent of Mojo 🔥
 
+<div class="intro">
+  <div class="intro-text">
+
 Welcome! We're excited to explore Mojo with you. You may be discovering
 Mojo for the first time. You may be evaluating it for your next project.
 Either way, the fastest way to get to know a language is to use it.
@@ -12,6 +15,22 @@ Let's write some Mojo together.
 
 Instead, you'll write real code, solve real problems, and learn Mojo by
 using it.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/coding-light.png"
+      alt="Mojo presenting syntax."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/coding-dark.png"
+      alt="Mojo presenting syntax."
+    >
+  </div>
+</div>
 
 ## About you
 

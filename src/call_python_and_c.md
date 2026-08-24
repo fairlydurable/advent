@@ -1,8 +1,9 @@
 # Call Python and C libraries 🔥
 
-**WORK IN PROGRESS**
-
 <!-- markdownlint-disable MD024 -->
+
+<div class="intro">
+  <div class="intro-text">
 
 Your puzzle is solved, but one question hangs over the season: is the Pole
 actually warming, or is that just the midday sun on station 3? Here's what you
@@ -12,6 +13,22 @@ crunch them at native speed. Mojo links to both.
 Mojo solves the whole season on its own. This page is about reach: when a
 library you already trust does exactly what you want, you call it instead of
 reimplementing it.
+
+  </div>
+
+  <div class="intro-image">
+    <img
+      class="intro-image-light"
+      src="img/interop-light.png"
+      alt="Mojo connects to C and Python libraries."
+    >
+    <img
+      class="intro-image-dark"
+      src="img/interop-dark.png"
+      alt="Mojo connects to C and Python libraries."
+    >
+  </div>
+</div>
 
 ## The question
 
