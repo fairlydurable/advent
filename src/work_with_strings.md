@@ -31,6 +31,15 @@ so you have real whitespace and casing problems to clean up as you go.
   </div>
 </div>
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
 ## It's plain ASCII
 
 Advent of Code inputs are ASCII. That means one byte per character, simple
@@ -53,6 +62,11 @@ Note that `splitlines()[0]` indexes the zeroth element of the text split by
 lines, so `var string` gets the first line of the text file. The logging script
 isn't perfectly tidy. The leading and trailing spaces on that first line will
 need to be cleaned up.
+
+The first line ends with two spaces on purpose. Some editors and formatters
+strip trailing whitespace when you save, which changes the byte counts in this
+chapter. If your copy says 30 bytes where this page says 32, add the two spaces
+back to the end of line 1 of `temp_log.txt`.
 
 ### Checkpoint
 

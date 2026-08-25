@@ -11,19 +11,19 @@
 # limitations under the License.
 # ===----------------------------------------------------------------------=== #
 # Paired test for snippets/call_python_and_c/warming.mojo
-# Run with: mojo run -I snippets/call_python_and_c tests/call_python_and_c/warming_test.mojo
+from output import assert_prints, captured_output
+from std.testing import TestSuite
 from warming import main as warming_main
-from std.testing import assert_true, TestSuite
 
 
-def test_main_runs() raises:
-    # warming.mojo guards both the numpy import and the BLAS handle with
-    # try/except, so it never raises even when numpy isn't installed or
-    # BLAS isn't on this platform's expected path. Running it end-to-end
-    # confirms the station 3 parsing/correction logic still works against
-    # src/downloads/station_reports.txt either way.
-    warming_main()
-    assert_true(True)
+def test_station_three_trend() raises:
+    # Needs Python and a resident BLAS, same as the page's walkthrough.
+    var out = captured_output(warming_main)
+
+    assert_prints(out, "4 station 3 readings")
+    assert_prints(out, "trend: 1.909")
+    assert_prints(out, "warming? True")
+    assert_prints(out, "season mean: -20.5")
 
 
 def main() raises:

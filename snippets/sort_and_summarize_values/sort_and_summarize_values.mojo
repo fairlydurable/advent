@@ -18,11 +18,6 @@ from std.builtin.sort import sort
 
 # ANCHOR_END: import_sort
 
-# ANCHOR: import_reduction
-from std.algorithm.reduction import max, min, sum
-
-# ANCHOR_END: import_reduction
-
 
 def main() raises:
     # ANCHOR: program
@@ -56,7 +51,11 @@ def main() raises:
     # ANCHOR_END: top3
 
     # ANCHOR: avg_print
-    print(t"average: {round(sum(readings) / Float64(count), 1)}")  # -25.6
+    var total: Float64 = 0.0
+    for r in readings:
+        total += r
+
+    print(t"average: {round(total / Float64(count), 1)}")  # -25.6
     # ANCHOR_END: avg_print
 
     # ANCHOR: filter_body
@@ -70,8 +69,16 @@ def main() raises:
     # ANCHOR_END: zip_loop
 
     # ANCHOR: minmax_setup
-    var max_value = max(readings)  # -18.2
-    var min_value = min(readings)  # -41.7
+    var max_value = Float64.MIN  # -inf, so any reading beats it
+    var min_value = Float64.MAX  # +inf, so any reading undercuts it
+
+    for r in readings:  # one pass finds both extremes
+        if r > max_value:
+            max_value = r
+        if r < min_value:
+            min_value = r
+
+    # max_value: -18.2 (warmest), min_value: -41.7 (coldest)
     # ANCHOR_END: minmax_setup
 
     # ANCHOR: try_except

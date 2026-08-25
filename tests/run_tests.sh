@@ -28,14 +28,14 @@ while IFS= read -r -d '' test_file; do
     count=$((count + 1))
 
     echo "--- $rel ---"
-    if mojo run -I "$snippet_dir" "$test_file"; then
+    if mojo run -I "$snippet_dir" -I tests/support "$test_file"; then
         echo "PASS: $rel"
     else
         echo "FAIL: $rel"
         failures=$((failures + 1))
     fi
     echo
-done < <(find tests -name "*.mojo" -print0 | sort -z)
+done < <(find tests -name "*.mojo" -not -path "tests/support/*" -print0 | sort -z)
 
 echo "Ran $count test files, $failures failed."
 [ "$failures" -eq 0 ]

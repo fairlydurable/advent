@@ -11,16 +11,19 @@
 # limitations under the License.
 # ===----------------------------------------------------------------------=== #
 # Paired test for snippets/mojo_basics/analyzer.mojo
-# Run with: mojo run -I snippets/mojo_basics tests/mojo_basics/analyzer.mojo
 from analyzer import main as analyzer_main
-from std.testing import assert_true, TestSuite
+from output import assert_prints, captured_output
+from std.testing import TestSuite
 
 
-def test_analyzer_runs() raises:
-    # analyzer.mojo has no reusable functions, just a print-driven main().
-    # Importing and running it end-to-end is the meaningful check here.
-    analyzer_main()
-    assert_true(True)
+def test_analyzer_report() raises:
+    var out = captured_output(analyzer_main)
+
+    assert_prints(out, "North Pole Temperature Analyzer")
+    assert_prints(out, "Recorded 4 temperatures")
+    assert_prints(out, "  Day 1: -20.5°C")
+    assert_prints(out, "  Day 4: -25.1°C")
+    assert_prints(out, "All temps negative")
 
 
 def main() raises:

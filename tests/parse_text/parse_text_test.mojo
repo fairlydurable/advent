@@ -11,17 +11,36 @@
 # limitations under the License.
 # ===----------------------------------------------------------------------=== #
 # Paired test for snippets/parse_text/parse_text.mojo
-# Run with: mojo run -I snippets/parse_text tests/parse_text/parse_text_test.mojo
+from output import assert_prints, captured_output
 from parse_text import main as parse_text_main
-from std.testing import assert_true, TestSuite
+from std.testing import TestSuite
 
 
-def test_main_runs() raises:
-    # parse_text.mojo has no reusable functions; it walks through reading,
-    # cleaning, and parsing src/downloads/temp_log.txt inline. Importing
-    # and running it end-to-end confirms it still works against that file.
-    parse_text_main()
-    assert_true(True)
+def test_line_counts() raises:
+    var out = captured_output(parse_text_main)
+
+    assert_prints(out, "Got 10 lines")
+    # split("\n") keeps the trailing empty line that splitlines() drops.
+    assert_prints(out, "split got 11 lines")
+
+
+def test_parsed_temperatures() raises:
+    var out = captured_output(parse_text_main)
+
+    assert_prints(out, "temp: -20.5")
+    assert_prints(
+        out,
+        (
+            "Parsed 10 temperatures: [-20.5, -22.3, -19.8, -25.1, -44.5,"
+            " -27.7, -42.3, -28.2, -23.0, -36.5]"
+        ),
+    )
+
+
+def test_bad_reading_is_rejected() raises:
+    var out = captured_output(parse_text_main)
+
+    assert_prints(out, "Rejected 1: [Day 11: ERROR, Sensor Fault]")
 
 
 def main() raises:

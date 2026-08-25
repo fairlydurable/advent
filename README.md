@@ -8,7 +8,7 @@ specification.
 
 The book is built with [mdBook](https://rust-lang.github.io/mdBook/). Source
 chapters live under [`src/`](src/), and custom styling lives under
-[`theme/`](theme/).
+[`theme/`](theme/). Advent of Mojo expects `mdBook v0.5.4` or later.
 
 Every runnable Mojo example lives in its own file under
 [`snippets/`](snippets/), one subdirectory per chapter, and each chapter

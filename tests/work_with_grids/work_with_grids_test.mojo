@@ -11,18 +11,37 @@
 # limitations under the License.
 # ===----------------------------------------------------------------------=== #
 # Paired test for snippets/work_with_grids/work_with_grids.mojo
-# Run with:
-#   mojo run -I snippets/work_with_grids tests/work_with_grids/work_with_grids_test.mojo
+from output import assert_prints, captured_output
+from std.testing import TestSuite
 from work_with_grids import main as work_with_grids_main
-from std.testing import assert_true, TestSuite
 
 
-def test_main_runs() raises:
-    # index_to_coord/get_coord_data/write_data are nested inside main(),
-    # so they aren't individually importable. Running main() end-to-end
-    # against src/downloads/grid_temps.txt is the meaningful check here.
-    work_with_grids_main()
-    assert_true(True)
+def test_grid_renders_every_row() raises:
+    var out = captured_output(work_with_grids_main)
+
+    assert_prints(out, " -30  -25  -28  -32  -20  -15   -3")
+    assert_prints(out, " -22  -18   -5  -20  -15  -10  -11")
+    assert_prints(out, " -27  -20  -30  -22  -17  -18  -19")
+    assert_prints(out, " -19   -3  -32  -31  -16  -10  -11")
+    assert_prints(out, " -24  -30  -22  -30  -19   -9   -8")
+
+
+def test_cool_spots_found() raises:
+    var out = captured_output(work_with_grids_main)
+
+    assert_prints(out, "Cool spot: (2, 2)")
+    assert_prints(out, "Cool spot: (2, 3)")
+    assert_prints(out, "Cool spot: (2, 5)")
+    assert_prints(out, "Cool spot: (3, 2)")
+    assert_prints(out, "Cool spot: (3, 3)")
+
+
+def test_second_pass_flags_the_cool_spots() raises:
+    # Same two rows as above, now starred where a cool spot was found.
+    var out = captured_output(work_with_grids_main)
+
+    assert_prints(out, " -27  -20  -30* -22* -17  -18* -19")
+    assert_prints(out, " -19   -3  -32* -31* -16  -10  -11")
 
 
 def main() raises:

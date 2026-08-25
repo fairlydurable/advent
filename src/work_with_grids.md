@@ -34,6 +34,15 @@ your results.
   </div>
 </div>
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
 <!-- markdownlint-disable MD024 -->
 
 ## Today's data
@@ -232,11 +241,11 @@ Call `write_data()` one more time, now that the search has filled in
 The highlighted grid makes it clear where the colder regions are:
 
 ```text
- -30  -25  -28  -32  -20  -15   -3 
- -22  -18   -5  -20  -15  -10  -11 
- -27  -20  -30* -22* -17  -18* -19 
- -19   -3  -32* -31* -16  -10  -11 
- -24  -30  -22  -30  -19   -9   -8 
+ -30  -25  -28  -32  -20  -15   -3
+ -22  -18   -5  -20  -15  -10  -11
+ -27  -20  -30* -22* -17  -18* -19
+ -19   -3  -32* -31* -16  -10  -11
+ -24  -30  -22  -30  -19   -9   -8
 ```
 
 The failed warming pad is immediately obvious.

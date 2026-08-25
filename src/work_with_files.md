@@ -11,6 +11,15 @@ holds it, create your own report, and update it as new readings arrive.
 Along the way you'll meet `Path`, `FileHandle`, and Mojo's context
 managers: the same tools you'll use again and again throughout AoC.
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
   </div>
 
   <div class="intro-image">
@@ -217,5 +226,7 @@ helps you work with temporary content.
 
 `Path("a/b/c.txt").name` is `"c.txt"`. `split`, `basename`, `dirname`, and
 `getsize` cover the rest. Import them from `std.os.path`
+
+Compose paths with `/`, as in `Path("data") / "temp_log.txt"`.
 
 <!-- markdownlint-enable MD024 -->

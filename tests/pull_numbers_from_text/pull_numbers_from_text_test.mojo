@@ -16,6 +16,7 @@
 #       tests/pull_numbers_from_text/pull_numbers_from_text_test.mojo
 from pull_numbers_from_text import extract_ints, main as pull_numbers_main
 from std.testing import assert_equal, assert_true, TestSuite
+from output import assert_prints, captured_output
 
 
 def test_extract_ints_basic() raises:
@@ -39,9 +40,13 @@ def test_extract_ints_splits_on_sign_and_decimal() raises:
     assert_equal(extract_ints("-20.5"), [20, 5])
 
 
-def test_main_runs() raises:
-    pull_numbers_main()
-    assert_true(True)
+def test_main_output() raises:
+    var out = captured_output(pull_numbers_main)
+
+    assert_prints(out, "day numbers: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]")
+    assert_prints(out, "complete, in order: True")
+    assert_prints(out, "scanned: [1, 20, 5]")
+    assert_prints(out, "reading: -20.5")
 
 
 def main() raises:

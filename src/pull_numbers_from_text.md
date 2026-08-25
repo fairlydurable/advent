@@ -10,6 +10,15 @@ typically need to find the numbers, separate out the ones you want,
 and turn them into values you can compute with. This page returns
 to the sensor log from [Work with files](./work_with_files.md).
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
   </div>
 
   <div class="intro-image">

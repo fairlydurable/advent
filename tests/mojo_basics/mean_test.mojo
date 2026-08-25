@@ -13,6 +13,7 @@
 # Paired test for snippets/mojo_basics/mean.mojo
 # Run with: mojo run -I snippets/mojo_basics tests/mojo_basics/mean.mojo
 from mean import calculate_average, main as mean_main
+from output import assert_prints, captured_output
 from std.testing import (
     assert_almost_equal,
     assert_raises,
@@ -32,9 +33,13 @@ def test_calculate_average_raises_on_empty() raises:
         _ = calculate_average(empty)
 
 
-def test_main_runs() raises:
-    mean_main()
-    assert_true(True)
+def test_main_output() raises:
+    # No try/except here, so main() raises. It still prints the same report.
+    var out = captured_output(mean_main)
+
+    assert_prints(out, "Recorded 4 temperatures")
+    assert_prints(out, "Average: -21.92°C")
+    assert_prints(out, "Status: Comfortable week")
 
 
 def main() raises:

@@ -11,18 +11,30 @@
 # limitations under the License.
 # ===----------------------------------------------------------------------=== #
 # Paired test for snippets/reuse_your_code/reuse_your_code.mojo
-# Run with:
-#   mojo run -I snippets/reuse_your_code tests/reuse_your_code/reuse_your_code_test.mojo
+from output import assert_prints, captured_output
 from reuse_your_code import main as reuse_your_code_main
-from std.testing import assert_true, TestSuite
+from std.testing import TestSuite
 
 
-def test_main_runs() raises:
-    # reuse_your_code.mojo only demonstrates calling into the toolkit
-    # library (covered directly in toolkit_test.mojo); running it end to
-    # end confirms the two stay wired together correctly.
-    reuse_your_code_main()
-    assert_true(True)
+def test_toolkit_calls_from_the_page() raises:
+    var out = captured_output(reuse_your_code_main)
+
+    assert_prints(out, "reused: [3, 5, 8]")
+
+
+def test_default_and_overridden_offset() raises:
+    # corrected() takes offset=1.5 by default; the page overrides it to 2.0.
+    var out = captured_output(reuse_your_code_main)
+
+    assert_prints(out, "noon, default: 23.0")
+    assert_prints(out, "noon, bigger:  22.5")
+
+
+def test_composed_correction_and_mean() raises:
+    var out = captured_output(reuse_your_code_main)
+
+    assert_prints(out, "corrected: [22.1, 23.0, 19.8]")
+    assert_prints(out, "mean after correction: 21.63")
 
 
 def main() raises:

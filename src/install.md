@@ -3,7 +3,7 @@
 <div class="intro">
   <div class="intro-text">
 
-This workbook uses the Mojo nightly build.
+This workbook `mdBook v0.5.4` and later and the Mojo nightly build.
 
 Here's how you can make sure your system supports Mojo, install it, update
 it, and uninstall.
@@ -102,7 +102,7 @@ Configure pixi to automatically use nightly Mojo builds:
 
 ```bash
 echo 'default-channels = ["https://conda.modular.com/max-nightly",' \
-     '"conda-forge"]' >> ~/.pixi/config.toml 
+     '"conda-forge"]' >> ~/.pixi/config.toml
 ```
 
 </details>
@@ -118,21 +118,11 @@ curl -LsSf https://astral.sh/uv/install.sh | sh
 uv init advent-of-code && cd advent-of-code
 uv venv && source .venv/bin/activate
 
-# Install Mojo (Release)
-uv pip install mojo \
-  --index https://whl.modular.com/nightly/simple/
-```
-
-## Install Mojo (Nightly)
-
-```bash
+# Install Mojo
 uv pip install mojo \
   --index https://whl.modular.com/nightly/simple/ \
   --prerelease allow
 ```
-
-The `--prerelease allow` flag is required only when installing beta
-(or dev) builds.
 
 </details>
 
@@ -160,3 +150,12 @@ the publisher is Modular.
 - **uv**: `uv pip uninstall mojo && uv sync && deactivate`
 
 <!-- markdownlint-enable MD024 -->
+
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.

@@ -11,6 +11,15 @@ the sensor log from [Work with files](./work_with_files.md) and
 you can add up, rejecting the junk lines the way real input always forces
 you to.
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
   </div>
 
   <div class="intro-image">

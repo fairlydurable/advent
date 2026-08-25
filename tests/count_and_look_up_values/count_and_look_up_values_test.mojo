@@ -12,19 +12,34 @@
 # ===----------------------------------------------------------------------=== #
 # Paired test for
 # snippets/count_and_look_up_values/count_and_look_up_values.mojo
-# Run with:
-#   mojo run -I snippets/count_and_look_up_values \
-#       tests/count_and_look_up_values/count_and_look_up_values_test.mojo
 from count_and_look_up_values import main as count_and_look_up_values_main
-from std.testing import assert_true, TestSuite
+from output import assert_prints, captured_output
+from std.testing import TestSuite
 
 
-def test_main_runs() raises:
-    # The tallies, membership checks, and missing-day comprehension all
-    # depend on src/downloads/station_reports.txt staying in the shape
-    # the page describes; running it end-to-end catches drift there.
-    count_and_look_up_values_main()
-    assert_true(True)
+def test_station_tallies() raises:
+    var out = captured_output(count_and_look_up_values_main)
+
+    assert_prints(out, "15 readings")
+    assert_prints(out, "station 1: 5 readings")
+    assert_prints(out, "station 3: 4 readings")
+    assert_prints(out, "station 5: 6 readings")
+
+
+def test_membership_checks() raises:
+    var out = captured_output(count_and_look_up_values_main)
+
+    assert_prints(out, "Station 1 reported? Yes")
+    assert_prints(out, "Station 2 reported? No")
+    assert_prints(out, "Station 4 reported? No")
+    assert_prints(out, "silent stations: {2, 4}")
+
+
+def test_missing_day_is_found() raises:
+    # station_reports.txt deliberately omits Station 1 on Day 1.
+    var out = captured_output(count_and_look_up_values_main)
+
+    assert_prints(out, "missing days: [Station 1 - Day 1]")
 
 
 def main() raises:

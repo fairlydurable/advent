@@ -53,7 +53,7 @@ def main() raises:
     # ANCHOR: append_report
     with open(report, "a") as f:
         var value = -52.3
-        f.write(t"\nLate reading: {Float64(value)} °sC")
+        f.write(t"\nLate reading: {Float64(value)} °C")
     print(report.read_text())
     # ANCHOR_END: append_report
 

@@ -9,6 +9,15 @@ Many puzzles follow the same pattern to pull the numbers and clean them up in
 order to formulate a solution. Consolidating these into reusable libraries
 means you only need to solve your problems once.
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
   </div>
 
   <div class="intro-image">

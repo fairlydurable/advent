@@ -321,7 +321,7 @@ pre code {
   .intro > * + * {
     margin-left: 0;
   }
-  
+
   .outro {
     gap: 2rem;
   }
@@ -450,6 +450,12 @@ html.ayu .outro-image-dark {
 }
 
 /* Book cover */
+
+/* The cover sits outside .intro-image, so it needs its own default-hide.
+   html.coal/navy/ayu above are unscoped and still do the swap. */
+.mojo-cover.intro-image-dark {
+  display: none;
+}
 
 .mojo-cover {
   display: block;

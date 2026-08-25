@@ -31,6 +31,15 @@ system, they need a program that can inspect the data.
   </div>
 </div>
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
 ## Hello Mojo
 
 Create `analyzer.mojo` in your favorite IDE or editor.
@@ -219,23 +228,5 @@ The North Pole has its first working analysis tool.
 ## Topics covered
 
 Mojo variables, lists, loops, functions, conditionals, and error handling.
-
-## Extras
-
-<details>
-<summary><b>Sidequest</b>: Discover `mean()`</summary>
-
-Now that `calculate_average()` can raise errors, try Mojo's built-in
-`mean()` function. It is also a raising call:
-
-- Add `from max.algorithm import mean` to the start of your file.
-- Replace the manual calculation after the empty check with
-  `return mean(temps)`.
-
-```mojo
-{{#include ../snippets/mojo_basics/mean.mojo:snippet}}
-```
-
-</details>
 
 <!-- markdownlint-enable MD024 -->

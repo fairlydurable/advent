@@ -9,6 +9,15 @@ Manipulating data helps you identify patterns and trends. When your
 puzzle wants the coldest and warmest readings, for example, it helps to use
 Mojo sorting and filtering.
 
+> [!NOTE]
+> Advent of Mojo is a work in progress. Content, examples, and structure
+> may change. If you've found a bug, have a suggestion, or want to flag
+> something confusing, or any other reason, please open a thorough
+> ***Documentation*** issue on the
+> [Modular GitHub](https://github.com/modular/modular/issues).
+>
+> This link may change when Advent is broken off to its own repository.
+
   </div>
 
   <div class="intro-image">
@@ -78,14 +87,7 @@ take from the end.
 
 You've been asked to find the average temperature across every reading.
 
-Import `sum()`, `min()`, and `max()` from the reduction package:
-
-```mojo
-{{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:import_reduction}}
-```
-
-Call `sum()` and divide by `count`. This line also rounds the result to a
-single decimal place.
+Iterate a sum and divide by `count`.
 
 ```mojo
 {{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:avg_print}}
@@ -95,8 +97,9 @@ single decimal place.
 
 - `round(value, digits)` tidies a float for display. Floating-point totals
   carry representation noise. `round()` helps you control that.
-- The reduction package lets you use `sum()`, `product()`, `min()`,
-  `max()`, and `mean()`.
+- `List` has no built-in reductions like `sum()`, `min()`, or `max()`.
+  Accumulate across a loop instead. The `min()` and `max()` in `std.math`
+  compare two values, not a whole list.
 
 ## Filter it down
 
@@ -132,8 +135,8 @@ Use this to align readings with their labels:
 
 ## Match the readings to the extremes
 
-Using `max()` and `min()`, fetch the minimum and maximum values without
-sorting:
+Sorting orders every reading when you only need two of them. A single pass
+finds both extremes without that work:
 
 ```mojo
 {{#include ../snippets/sort_and_summarize_values/sort_and_summarize_values.mojo:minmax_setup}}
@@ -161,7 +164,7 @@ Your complete `sort_and_summarize_values.mojo`:
 
 ## Topics covered
 
-Sorting, reductions (`sum()`, `min()`, `max()`), filtered comprehensions,
-`zip()`, and locating values with `index()`.
+Sorting, filtered comprehensions, `zip()`, and locating values with
+`index()`.
 
 <!-- markdownlint-enable MD024 -->

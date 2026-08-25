@@ -14,6 +14,7 @@
 # Run with: mojo run -I snippets/mojo_basics tests/mojo_basics/calculate_average.mojo
 from calculate_average import calculate_average, main as calculate_average_main
 from std.testing import assert_almost_equal, assert_true, TestSuite
+from output import assert_prints, captured_output
 
 
 def test_calculate_average() raises:
@@ -26,9 +27,12 @@ def test_calculate_average_single_value() raises:
     assert_almost_equal(calculate_average(temps), -10.0, atol=1e-9)
 
 
-def test_main_runs() raises:
-    calculate_average_main()
-    assert_true(True)
+def test_main_output() raises:
+    var out = captured_output(calculate_average_main)
+
+    assert_prints(out, "Recorded 4 temperatures")
+    assert_prints(out, "Average: -21.92°C")
+    assert_prints(out, "Status: Comfortable week")
 
 
 def main() raises:
