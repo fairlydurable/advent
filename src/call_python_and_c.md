@@ -59,12 +59,31 @@ down to `-20.0`, right in line with the rest of the season. Skip the
 correction and the trend still looks like it's warming, just by a slightly
 inflated amount.
 
+### Checkpoint
+
+- Type the `days` and `readings` declarations explicitly. Without the
+  annotations, Mojo infers `Array` instead of `List`.
+- Wrap text-to-number conversion in `try`/`except`. Input text may not
+  contain a valid number.
+- Chained comparisons evaluate as pairwise comparisons joined by `and`.
+  This expression:
+
+  ```mojo
+  10 <= Float64(hour_string) < 14
+  ```
+
+  is equivalent to:
+
+  ```mojo
+  10 <= Float64(hour_string) and Float64(hour_string) < 14
+  ```
+
 ## Call Python: fit a trend with numpy
 
-`numpy` fits a line in one call. Its `polyfit` returns the slope and intercept,
-and the slope's sign answers the question.
+`numpy` fits a line in one call. Its `polyfit` function returns the slope and
+intercept. The sign of the slope answers the question: "Is it warming?"
 
-Add the import at the top:
+Add imports at the top:
 
 ```mojo
 {{#include ../snippets/call_python_and_c/warming.mojo:numpy_import}}
@@ -78,17 +97,18 @@ Then, in `main()`:
 
 ### Checkpoint
 
-- `Python.import_module` loads any module the active Python can see. It raises
-  when the module is missing, so wrap it in `try`/`except` and the program keeps
-  running instead of crashing.
-- `numpy` isn't part of Mojo. Add it to your project (`pixi add numpy`) so the
-  import succeeds. `re`, `math`, and the rest of Python's standard library ship
-  with Python and need no install.
-- `np.array` won't take a Mojo `List` directly, so build a `Python.list()` and
-  append into it. Cross the boundary once, in bulk, not once per value.
-- `slope` is a `PythonObject`. Compare it in Python space (`slope > 0`) rather
-  than converting it back to a Mojo `Float64`.
-- The raw slope carries float noise. Its sign is the answer you came for.
+- `Python.import_module()` loads any module the active Python can see. It
+  raises if the module is missing, so use `try`/`except` to handle the error.
+- `numpy` isn't part of Mojo. Add it to your project with `pixi add numpy`.
+  Python standard library modules such as `re` and `math` need no separate
+  install.
+- `np.array()` doesn't accept a Mojo `List` directly. Build a `Python.list()`
+  and append the values, crossing the Python boundary once instead of once
+  per value.
+- `slope` is a `PythonObject`. Compare it in Python space (`slope > 0`)
+  instead of converting it to a Mojo `Float64`.
+- The exact slope includes floating-point noise. Its sign is all you need
+  to answer whether the readings are warming.
 
 ## Call C: crunch with BLAS
 
@@ -109,17 +129,19 @@ Then, in `main()`:
 
 ### Checkpoint
 
-- `OwnedDLHandle(path)` opens a shared library. It raises when the library is
-  absent, so the same `try`/`except` probe works here as for numpy.
-- `get_function` names the C signature. `thin abi("C")` says a plain C function;
-  `c_int` and `c_double` are the C-sized aliases (`c_double` is `Float64`), so
-  your `List[Float64]` passes straight through.
-- `readings.unsafe_ptr()` hands C the array's memory. Get the pointer right
-  before the call; anything that grows the list can move it.
-- `cblas_dasum` sums magnitudes, not signed values. Every station 3 reading is
-  below zero, so negating the result hands back the real mean.
-- macOS ships BLAS inside the Accelerate framework, shown here. On Linux the
-  library is `libopenblas.so` or `libblas.so.3`, usually installed separately.
+- `OwnedDLHandle(path)` opens a shared library. It raises if the library is
+  missing, so use the same `try`/`except` probe as for NumPy.
+- `get_function()` specifies the C signature. `thin abi("C")` declares a plain
+  C function, while `c_int` and `c_double` match C's integer and double types.
+  `c_double` is an alias for `Float64`, so the readings need no conversion.
+- `readings.unsafe_ptr()` gives C a pointer to the list's storage. Get the
+  pointer immediately before the call. Growing the list can move its storage
+  and invalidate the pointer.
+- `cblas_dasum` sums absolute values. Because every station 3 reading is
+  negative, negate the result before calculating the mean.
+- macOS provides BLAS through the Accelerate framework used here. On Linux,
+  use `libopenblas.so` or `libblas.so.3`, which usually requires a separate
+  installation.
 
 ## Final code
 

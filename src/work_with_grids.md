@@ -23,12 +23,12 @@ your results.
   <div class="intro-image">
     <img
       class="intro-image-light"
-      src="img/grid-light.png"
+      src="img/good-grid-light.png"
       alt="Mojo inspecting a grid layout."
     >
     <img
       class="intro-image-dark"
-      src="img/grid-dark.png"
+      src="img/good-grid-dark.png"
       alt="Mojo inspecting a grid layout."
     >
   </div>
