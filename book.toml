@@ -1,5 +1,6 @@
 [book]
-title = "Advent of Mojo"
+title = "The Mojonomicon"
+description = "The dark arts of unsafe Mojo: ownership, origins, layout, uninitialized memory, and building safe types on unchecked foundations."
 authors = ["Erica Sadun"]
 language = "en"
 

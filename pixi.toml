@@ -1,15 +1,15 @@
 [workspace]
-authors = ["Erica Sadun <@fairlydurable>", "Michael Dunn-OConnor <@dunnoconnor>"]
+authors = ["Erica Sadun <@fairlydurable>"]
 channels = ["https://conda.modular.com/max-nightly", "conda-forge"]
-name = "advent-of-mojo"
+name = "mojonomicon"
 platforms = ["osx-arm64", "linux-64"]
 version = "0.1.0"
 
 [tasks]
 book = "mdbook build"
 serve = "mdbook serve"
-test = "bash tests/run_tests.sh"
+test = "MOJO=mojo bash run_samples.sh"
 
 [dependencies]
-mojo = ">=1.0.0b3.dev2026072217,<2"
+mojo = ">=1.3.0.dev0,<2"
 mdbook = ">=0.5.4,<0.6"

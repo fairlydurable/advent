@@ -1,12 +1,7 @@
 <div class="mojo-cover-wrap">
   <img
-    class="mojo-cover intro-image-light"
-    src="img/advent-of-mojo-light.png"
-    alt="Advent of Mojo cover art."
-  >
-  <img
-    class="mojo-cover intro-image-dark"
-    src="img/advent-of-mojo-dark.png"
-    alt="Advent of Mojo cover art."
+    class="mojo-cover"
+    src="img/mojonomicon-cover.png"
+    alt="The Mojonomicon cover: a flame character with starry eyes reads an open book, beside a stack of books, a treasure map, and a quill in an inkwell."
   >
 </div>

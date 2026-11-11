@@ -7,11 +7,10 @@
             aliases: ['mojo', '🔥'],
             keywords: {
                 keyword:
-                    'struct fn var let def trait comptime for while if else return continue break ' +
-                    'and or not in as is self Self trait ' +
-                    'owned in borrowed mut ' +
-                    'raises ' +
-                    'constrained ' +
+                    'struct var def trait comptime for while if else elif return continue break ' +
+                    'and or not in as is self Self lambda where ' +
+                    'imm mut out ref deinit ' +
+                    'raises raise assert abi ' +
                     'from import with try except finally pass ',
                 type:
                     'Int UInt Float Bool SIMD Int8 Int16 Int32 Int64 UInt8 UInt16 UInt32 UInt64 ' +

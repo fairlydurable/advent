@@ -1,55 +1,47 @@
-# Advent of Mojo
+# The Mojonomicon
 
-Advent of Mojo is a hands-on workbook for learning
-[Mojo](https://mojolang.org/) by writing real code. It combines short
-explanations, runnable examples, and exercises, aimed at developers who already
-know how to program and want a working Mojo vocabulary — not a language
-specification.
+The Mojonomicon covers the unchecked side of Mojo: ownership and origins,
+data layout, uninitialized memory, destructors and linear types, error paths,
+concurrency and atomics, building a growable list and an atomically
+reference-counted pointer from raw allocations, and calling C. Its outline
+follows the Rustonomicon, and it teaches Mojo on its own terms.
 
-The book is built with [mdBook](https://rust-lang.github.io/mdBook/). Source
-chapters live under [`src/`](src/), and custom styling lives under
-[`theme/`](theme/). Advent of Mojo expects `mdBook v0.5.4` or later.
+The book targets Mojo 1.3 nightlies. Mojo's pointer and allocation APIs
+changed in 1.3, so samples written for older releases often fail to compile.
 
-Every runnable Mojo example lives in its own file under
-[`snippets/`](snippets/), one subdirectory per chapter, and each chapter
-pulls its examples into the prose with mdBook's `{{#include}}` syntax. This
-keeps the snippets themselves compilable and testable independent of the
-book text. Every snippet has a paired test under [`tests/`](tests/) that
-imports it directly and checks its behavior.
+## Layout
+
+- `src/`: the chapters, one Markdown file per chapter, plus `SUMMARY.md`.
+- `src/code/`: every sample as a standalone `.mojo` file, one directory per
+  chapter. Each chapter quotes its samples verbatim and links to the file.
+- `theme/`: styling and the Mojo syntax highlighter.
+- `run_samples.sh`: compiles and runs every sample and checks it against the
+  contract in its header comments.
 
 ## Reading the book
 
-Chapters are listed in reading order in [`src/SUMMARY.md`](src/SUMMARY.md),
-starting with [`welcome.md`](src/welcome.md) and
-[`install.md`](src/install.md).
-
-## Building locally
-
-This is a [pixi](https://pixi.sh) project — it declares `mojo` and `mdbook`
-as dependencies so you don't need either installed globally.
-
-```bash
-# Install pixi if you don't have it
-curl -fsSL https://pixi.sh/install.sh | sh
-
-# Build the static site into ./book
-pixi run book
-
-# Or serve it locally with live reload
+```sh
 pixi run serve
-
-# Run one of the extracted snippets directly
-pixi run mojo snippets/mojo_basics/analyzer.mojo
 ```
 
-## Tests
+This builds the book and serves it at <http://localhost:3000>, rebuilding on
+every save. `pixi run book` builds once into `book/`. Pushing to `main`
+publishes the book to GitHub Pages through `.github/workflows/pages.yml`.
 
-Every file under `snippets/` has one paired test under `tests/`, at the
-same relative path, that imports the snippet and checks its behavior. Run
-the whole suite with `pixi run test`. See [`tests/README.md`](tests/README.md)
-for the naming convention and how to run a single test.
+## Checking the samples
 
-## Contributing
+```sh
+pixi run test
+```
 
-File issues or open pull requests against this directory. See
-[`.github/CODEOWNERS`](.github/CODEOWNERS) for maintainers.
+To check against a different compiler, set `MOJO` and run the script
+directly:
+
+```sh
+MOJO=/path/to/mojo ./run_samples.sh src/code/03-ownership
+```
+
+A sample with no marker must compile, run, and exit 0. A sample marked
+`# EXPECT-ERROR:` must fail to compile, and its `# EXPECT-MATCH:` regex must
+match the compiler output. A sample marked `# EXPECT-EXIT: nonzero` must
+compile and then exit nonzero at run time.
